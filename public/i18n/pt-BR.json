@@ -35,6 +35,11 @@
     "title": "Pokédex",
     "empty": "Nenhum Pokémon para mostrar.",
     "countOne": "1 Pokémon",
-    "countOther": "{{ count }} Pokémons"
+    "countOther": "{{ count }} Pokémons",
+    "prev": "Anterior",
+    "next": "Próxima",
+    "pageOf": "Página {{ page }} de {{ total }}",
+    "paginationLabel": "Paginação",
+    "cardAriaLabel": "{{ name }}, {{ number }}"
   }
 }
