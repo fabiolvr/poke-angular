@@ -1,12 +1,21 @@
 {
   "name": "poke-angular",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
+    "dev": "ng serve",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:coverage": "ng test --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "prepare": "husky"
   },
   "private": true,
   "packageManager": "npm@11.7.0",
@@ -24,12 +33,31 @@
     "@angular/build": "^21.2.11",
     "@angular/cli": "^21.2.11",
     "@angular/compiler-cli": "^21.2.0",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/js": "^9.18.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "angular-eslint": "^21.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
+    "lint-staged": "^15.3.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.6.10",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
+    "typescript-eslint": "^8.20.0",
     "vitest": "^4.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,md,json,js}": [
+      "prettier --write"
+    ]
   }
 }
