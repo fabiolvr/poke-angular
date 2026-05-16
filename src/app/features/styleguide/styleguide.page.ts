@@ -1,5 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { LanguageService } from '@core/i18n';
+import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { POKEMON_TYPES, ThemeService, type ThemePreference } from '@core/theme';
+import { TranslocoDirective } from '@jsverse/transloco';
+import { LanguageSwitcher } from '@layout/index';
 import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } from '@shared/ui';
 
 /**
@@ -10,20 +14,36 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
 @Component({
   selector: 'app-styleguide-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton],
+  imports: [
+    BrutalBadge,
+    BrutalButton,
+    BrutalCard,
+    BrutalInput,
+    BrutalSkeleton,
+    LanguageSwitcher,
+    TranslocoDirective,
+  ],
   template: `
-    <main class="mx-auto max-w-5xl space-y-12 p-8">
+    <main *transloco="let t" class="mx-auto max-w-5xl space-y-12 p-8">
       <header class="space-y-2">
-        <h1 class="font-display text-4xl font-bold tracking-tight">Brutalist Styleguide</h1>
-        <p class="text-ink-soft max-w-2xl">
-          Kitchen-sink for the design-system primitives. This page is only available in development.
-        </p>
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 class="font-display text-4xl font-bold tracking-tight">
+              {{ t('app.title') }} — Styleguide
+            </h1>
+            <p class="text-ink-soft max-w-2xl">
+              Kitchen-sink for the design-system primitives. This page is only available in
+              development.
+            </p>
+          </div>
+          <app-language-switcher />
+        </div>
       </header>
 
       <section aria-labelledby="theme-section" class="space-y-3">
-        <h2 id="theme-section" class="font-display text-2xl font-bold">Theme</h2>
+        <h2 id="theme-section" class="font-display text-2xl font-bold">{{ t('theme.label') }}</h2>
         <p class="text-ink-soft">
-          Current: <strong>{{ theme.resolved() }}</strong>
+          Current: <strong>{{ t('theme.' + theme.resolved()) }}</strong>
         </p>
         <div class="flex flex-wrap gap-3">
           @for (option of themeOptions; track option.value) {
@@ -32,9 +52,40 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
               size="sm"
               (pressed)="theme.setPreference(option.value)"
             >
-              {{ option.label }}
+              {{ t('theme.' + option.value) }}
             </app-brutal-button>
           }
+        </div>
+      </section>
+
+      <section aria-labelledby="i18n-section" class="space-y-3">
+        <h2 id="i18n-section" class="font-display text-2xl font-bold">i18n + formatters</h2>
+        <p class="text-ink-soft">
+          Active lang: <strong>{{ lang.current() }}</strong>
+        </p>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <app-brutal-card padding="sm">
+            <p class="text-ink-soft text-xs uppercase">Pokédex number</p>
+            <p class="font-mono text-2xl font-bold">{{ samplePokedex() }}</p>
+          </app-brutal-card>
+          <app-brutal-card padding="sm">
+            <p class="text-ink-soft text-xs uppercase">Height (4 dm)</p>
+            <p class="font-mono text-2xl font-bold">{{ sampleHeight() }}</p>
+          </app-brutal-card>
+          <app-brutal-card padding="sm">
+            <p class="text-ink-soft text-xs uppercase">Weight (60 hg)</p>
+            <p class="font-mono text-2xl font-bold">{{ sampleWeight() }}</p>
+          </app-brutal-card>
+        </div>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <app-brutal-card padding="sm">
+            <p class="text-ink-soft text-xs uppercase">errors.network</p>
+            <p>{{ t('errors.network') }}</p>
+          </app-brutal-card>
+          <app-brutal-card padding="sm">
+            <p class="text-ink-soft text-xs uppercase">errors.rateLimit</p>
+            <p>{{ t('errors.rateLimit') }}</p>
+          </app-brutal-card>
         </div>
       </section>
 
@@ -46,7 +97,7 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
           <app-brutal-button variant="danger">Danger</app-brutal-button>
           <app-brutal-button variant="ghost">Ghost</app-brutal-button>
           <app-brutal-button disabled>Disabled</app-brutal-button>
-          <app-brutal-button loading>Loading</app-brutal-button>
+          <app-brutal-button loading>{{ t('common.loading') }}</app-brutal-button>
         </div>
         <div class="flex flex-wrap items-center gap-4">
           <app-brutal-button size="sm">Small</app-brutal-button>
@@ -78,8 +129,8 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
           <app-brutal-input
             [(value)]="search"
-            label="Search Pokémon"
-            placeholder="Try 'pika' or 'char'"
+            [label]="t('common.search')"
+            placeholder="pika"
             hint="Case-insensitive partial match."
           />
           <app-brutal-input
@@ -90,16 +141,18 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
             required
           />
         </div>
-        <p class="text-ink-soft text-sm">
-          Search value: <code>{{ search() }}</code>
-        </p>
+        @if (search()) {
+          <p class="text-ink-soft text-sm">
+            Search value: <code>{{ search() }}</code>
+          </p>
+        }
       </section>
 
       <section aria-labelledby="badges-section" class="space-y-4">
         <h2 id="badges-section" class="font-display text-2xl font-bold">Badges</h2>
         <div class="flex flex-wrap gap-3">
           <app-brutal-badge>Neutral</app-brutal-badge>
-          <app-brutal-badge variant="primary">#001</app-brutal-badge>
+          <app-brutal-badge variant="primary">#0001</app-brutal-badge>
           <app-brutal-badge variant="secondary">New</app-brutal-badge>
           <app-brutal-badge variant="accent">Legendary</app-brutal-badge>
         </div>
@@ -135,12 +188,17 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
 })
 export default class StyleguidePage {
   protected readonly theme = inject(ThemeService);
+  protected readonly lang = inject(LanguageService);
   protected readonly pokemonTypes = POKEMON_TYPES;
   protected readonly search = signal('');
   protected readonly errorVal = signal('');
-  protected readonly themeOptions: { value: ThemePreference; label: string }[] = [
-    { value: 'system', label: 'System' },
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' },
+  protected readonly themeOptions: { value: ThemePreference }[] = [
+    { value: 'system' },
+    { value: 'light' },
+    { value: 'dark' },
   ];
+
+  protected readonly samplePokedex = computed(() => formatPokedexNumber(25));
+  protected readonly sampleHeight = computed(() => formatHeight(4, this.lang.current()));
+  protected readonly sampleWeight = computed(() => formatWeight(60, this.lang.current()));
 }

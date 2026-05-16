@@ -48,6 +48,13 @@ Decisões já tomadas que precisam virar ADRs antes da entrega final:
 - [ ] **ADR-0009** — Busca client-side híbrida sobre índice cacheado vs
       server-side
 
+## i18n / Transloco
+
+- [ ] **Plurals ICU** — usar `@jsverse/transloco-messageformat` para suportar
+      sintaxe `{count, plural, one {…} other {…}}`. Por ora, traduções usam
+      pares `countOne` / `countOther` selecionados pelo chamador. Instalar o
+      plugin quando a Fase 4 (listagem) precisar exibir contagem real.
+
 ## Qualidade de testes (Fase 3+)
 
 - [ ] **Thresholds de cobertura para `data-access` e `domain`** — meta de 80%
