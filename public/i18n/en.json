@@ -41,5 +41,29 @@
     "pageOf": "Page {{ page }} of {{ total }}",
     "paginationLabel": "Pagination",
     "cardAriaLabel": "{{ name }}, {{ number }}"
+  },
+  "detail": {
+    "back": "Back",
+    "height": "Height",
+    "weight": "Weight",
+    "baseExperience": "Base experience",
+    "types": "Types",
+    "abilities": "Abilities",
+    "hiddenAbility": "(hidden)",
+    "stats": "Stats",
+    "statTotal": "Total",
+    "shinyToggle": "Show shiny",
+    "normalToggle": "Show normal",
+    "evolutionChain": "Evolution chain",
+    "evolutionChainEmpty": "This Pokémon does not evolve.",
+    "flavorText": "Description",
+    "stat": {
+      "hp": "HP",
+      "attack": "Attack",
+      "defense": "Defense",
+      "special-attack": "Sp. Atk",
+      "special-defense": "Sp. Def",
+      "speed": "Speed"
+    }
   }
 }
