@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "Pokédex",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "nav": {
+    "list": "Listagem",
+    "search": "Busca"
+  },
+  "language": {
+    "label": "Idioma",
+    "pt-BR": "Português",
+    "en": "Inglês"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "common": {
+    "retry": "Tentar novamente",
+    "back": "Voltar",
+    "loading": "Carregando",
+    "search": "Buscar"
+  },
+  "errors": {
+    "network": "Sem conexão com a PokéAPI. Verifique sua rede e tente novamente.",
+    "notFound": "Pokémon não encontrado.",
+    "rateLimit": "Muitas requisições. Aguarde alguns instantes.",
+    "server": "A PokéAPI está com instabilidade no momento.",
+    "unknown": "Algo deu errado. Tente novamente."
+  },
+  "list": {
+    "title": "Pokédex",
+    "empty": "Nenhum Pokémon para mostrar.",
+    "countOne": "1 Pokémon",
+    "countOther": "{{ count }} Pokémons"
+  }
+}
