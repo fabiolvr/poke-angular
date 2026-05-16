@@ -1,0 +1,118 @@
+/* ---------------------------------------------------------------- */
+/* Design tokens — neobrutalist language for the Pokédex app.       */
+/* Token names in @theme become Tailwind utilities automatically    */
+/* (e.g. --color-type-fire → bg-type-fire / text-type-fire).        */
+/* ---------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces — light defaults. Dark variants are applied in plain  */
+  /* CSS below so they cascade without re-generating utilities.     */
+  --color-bg: #fff8e7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4ecd6;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #4a4a4a;
+  --color-ink-mute: #6b6b6b;
+
+  /* Brand intents */
+  --color-primary: #ffd23f;
+  --color-secondary: #3b82f6;
+  --color-accent: #ef4444;
+  --color-success: #22c55e;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+
+  /* The 18 canonical Pokémon types. Single source of truth: the TS */
+  /* map in core/theme/pokemon-type.tokens.ts mirrors these names.  */
+  --color-type-normal: #a8a77a;
+  --color-type-fire: #ee8130;
+  --color-type-water: #6390f0;
+  --color-type-electric: #f7d02c;
+  --color-type-grass: #7ac74c;
+  --color-type-ice: #96d9d6;
+  --color-type-fighting: #c22e28;
+  --color-type-poison: #a33ea1;
+  --color-type-ground: #e2bf65;
+  --color-type-flying: #a98ff3;
+  --color-type-psychic: #f95587;
+  --color-type-bug: #a6b91a;
+  --color-type-rock: #b6a136;
+  --color-type-ghost: #735797;
+  --color-type-dragon: #6f35fc;
+  --color-type-dark: #705746;
+  --color-type-steel: #b7b7ce;
+  --color-type-fairy: #d685ad;
+
+  /* Typography. Display + body share Space Grotesk for a single    */
+  /* heavy geometric voice; mono for stats keeps numbers aligned.   */
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Brutalist structural tokens. These are NOT meant to spawn      */
+  /* color utilities — they're consumed by the .brutal-* component  */
+  /* classes in components.css.                                     */
+  --border-brutal-width: 3px;
+  --radius-brutal: 6px;
+  --radius-brutal-sm: 4px;
+
+  --shadow-brutal-sm: 2px 2px 0 0 var(--color-ink);
+  --shadow-brutal: 4px 4px 0 0 var(--color-ink);
+  --shadow-brutal-lg: 6px 6px 0 0 var(--color-ink);
+
+  /* Motion. Keep transitions short and direct — never longer than  */
+  /* 200ms per the design system rules.                             */
+  --motion-fast: 80ms;
+  --motion-base: 140ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* Tailwind v4 custom variant: enables `dark:` utilities to target  */
+/* an explicit [data-theme="dark"] override OR a [data-theme="dark"] */
+/* ancestor chain. System preference (no data-theme set) is handled */
+/* by the @media block below.                                       */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* System preference: apply dark unless the user has explicitly     */
+/* chosen light via the ThemeService.                               */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #161616;
+    --color-surface: #1f1f1f;
+    --color-surface-muted: #2a2a2a;
+    --color-ink: #f5f5f5;
+    --color-ink-soft: #c4c4c4;
+    --color-ink-mute: #8f8f8f;
+  }
+}
+
+/* Explicit user override beats both the @theme defaults and any    */
+/* system preference. Set via ThemeService → documentElement.       */
+[data-theme='dark'] {
+  --color-bg: #161616;
+  --color-surface: #1f1f1f;
+  --color-surface-muted: #2a2a2a;
+  --color-ink: #f5f5f5;
+  --color-ink-soft: #c4c4c4;
+  --color-ink-mute: #8f8f8f;
+}
+
+[data-theme='light'] {
+  --color-bg: #fff8e7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4ecd6;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #4a4a4a;
+  --color-ink-mute: #6b6b6b;
+}
+
+/* Respect users who opt out of motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,0 +1,89 @@
+/* ---------------------------------------------------------------- */
+/* Brutalist component classes — the visual language reused by all  */
+/* design-system components. Lives in a CSS layer so utility classes */
+/* still win when composed on top.                                   */
+/* ---------------------------------------------------------------- */
+
+@layer components {
+  /* The base brutalist surface: thick ink border + hard offset      */
+  /* shadow, rendered in the current ink color. Used as a building   */
+  /* block by buttons, cards, inputs, badges, skeletons.             */
+  .brutal-surface {
+    border: var(--border-brutal-width) solid var(--color-ink);
+    border-radius: var(--radius-brutal);
+    box-shadow: var(--shadow-brutal);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
+  /* Interactive variant: on hover the surface "sinks" into its      */
+  /* shadow; on press it touches the ground. Movement matches the    */
+  /* shadow offset so the illusion stays consistent.                 */
+  .brutal-interactive {
+    transition:
+      transform var(--motion-fast) var(--motion-ease),
+      box-shadow var(--motion-fast) var(--motion-ease);
+    will-change: transform;
+  }
+
+  .brutal-interactive:hover:not(:disabled):not([aria-disabled='true']) {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-brutal-sm);
+  }
+
+  .brutal-interactive:active:not(:disabled):not([aria-disabled='true']) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+
+  .brutal-interactive:disabled,
+  .brutal-interactive[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* Focus state: prominent ring that doesn't depend on the shadow. */
+  .brutal-focusable:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 3px;
+  }
+
+  /* Pulse used by the skeleton loader. Short cycle, low contrast    */
+  /* delta — respects prefers-reduced-motion via the global rule.    */
+  @keyframes brutal-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  .brutal-pulse {
+    animation: brutal-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+/* Base page styles. Anything that isn't a component lives here.     */
+@layer base {
+  html {
+    color-scheme: light dark;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 3px;
+  }
+}
