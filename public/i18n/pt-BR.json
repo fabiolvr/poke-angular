@@ -42,6 +42,19 @@
     "paginationLabel": "Paginação",
     "cardAriaLabel": "{{ name }}, {{ number }}"
   },
+  "search": {
+    "title": "Buscar Pokémon",
+    "placeholder": "Digite um nome (ex.: pika)",
+    "hint": "Busca por nome, sem acentos. Use ↑ ↓ para navegar, Enter para abrir.",
+    "loadingIndex": "Preparando índice de Pokémons…",
+    "typeToStart": "Comece a digitar para ver resultados.",
+    "empty": "Nenhum Pokémon corresponde a {{ query }}.",
+    "resultsLabel": "Resultados da busca",
+    "resultCountOne": "1 resultado",
+    "resultCountOther": "{{ count }} resultados",
+    "showingFirst": "Exibindo os primeiros {{ shown }} de {{ total }}.",
+    "clear": "Limpar"
+  },
   "detail": {
     "back": "Voltar",
     "height": "Altura",

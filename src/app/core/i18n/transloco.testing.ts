@@ -61,6 +61,17 @@ const PT_BR: Translation = {
   'detail.stat.special-attack': 'Atq. Esp.',
   'detail.stat.special-defense': 'Def. Esp.',
   'detail.stat.speed': 'Velocidade',
+  'search.title': 'Buscar Pokémon',
+  'search.placeholder': 'Digite um nome',
+  'search.hint': 'Busca por nome.',
+  'search.loadingIndex': 'Preparando índice…',
+  'search.typeToStart': 'Comece a digitar.',
+  'search.empty': 'Nada para {{ query }}.',
+  'search.resultsLabel': 'Resultados da busca',
+  'search.resultCountOne': '1 resultado',
+  'search.resultCountOther': '{{ count }} resultados',
+  'search.showingFirst': 'Exibindo {{ shown }} de {{ total }}.',
+  'search.clear': 'Limpar',
 };
 
 const EN: Translation = {
@@ -95,6 +106,17 @@ const EN: Translation = {
   'detail.stat.special-attack': 'Sp. Atk',
   'detail.stat.special-defense': 'Sp. Def',
   'detail.stat.speed': 'Speed',
+  'search.title': 'Search Pokémon',
+  'search.placeholder': 'Type a name',
+  'search.hint': 'Search by name.',
+  'search.loadingIndex': 'Preparing index…',
+  'search.typeToStart': 'Start typing.',
+  'search.empty': 'Nothing for {{ query }}.',
+  'search.resultsLabel': 'Search results',
+  'search.resultCountOne': '1 result',
+  'search.resultCountOther': '{{ count }} results',
+  'search.showingFirst': 'Showing {{ shown }} of {{ total }}.',
+  'search.clear': 'Clear',
 };
 
 @Injectable({ providedIn: 'root' })
