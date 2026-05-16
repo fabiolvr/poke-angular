@@ -1,5 +1,6 @@
 export { BrutalBadge } from './brutal-badge/brutal-badge';
 export type { BrutalBadgeSize, BrutalBadgeVariant } from './brutal-badge/brutal-badge';
+export { brutalButtonClasses } from './brutal-button/brutal-button-classes';
 export { BrutalButton } from './brutal-button/brutal-button';
 export type {
   BrutalButtonSize,
