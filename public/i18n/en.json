@@ -1,7 +1,9 @@
 {
   "app": {
     "title": "Pokédex",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "footerPoweredBy": "Data from",
+    "footerSourceLabel": "PokéAPI"
   },
   "nav": {
     "list": "List",
@@ -16,7 +18,9 @@
     "label": "Theme",
     "light": "Light",
     "dark": "Dark",
-    "system": "System"
+    "system": "System",
+    "toggleToDark": "Switch to dark theme",
+    "toggleToLight": "Switch to light theme"
   },
   "common": {
     "retry": "Try again",

@@ -16,6 +16,8 @@ import { DEFAULT_LANG, SUPPORTED_LANGS } from './supported-langs';
 const PT_BR: Translation = {
   'app.title': 'Pokédex',
   'app.skipToContent': 'Pular para o conteúdo',
+  'app.footerPoweredBy': 'Dados de',
+  'app.footerSourceLabel': 'PokéAPI',
   'nav.list': 'Listagem',
   'nav.search': 'Busca',
   'language.label': 'Idioma',
@@ -25,6 +27,8 @@ const PT_BR: Translation = {
   'theme.light': 'Claro',
   'theme.dark': 'Escuro',
   'theme.system': 'Sistema',
+  'theme.toggleToDark': 'Mudar para tema escuro',
+  'theme.toggleToLight': 'Mudar para tema claro',
   'common.retry': 'Tentar novamente',
   'common.back': 'Voltar',
   'common.loading': 'Carregando',
@@ -77,6 +81,8 @@ const PT_BR: Translation = {
 const EN: Translation = {
   'app.title': 'Pokédex',
   'app.skipToContent': 'Skip to content',
+  'app.footerPoweredBy': 'Data from',
+  'app.footerSourceLabel': 'PokéAPI',
   'common.retry': 'Try again',
   'common.loading': 'Loading',
   'list.title': 'Pokédex',
