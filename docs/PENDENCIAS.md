@@ -13,16 +13,12 @@ e uma sugestão de quando atacar.
 
 ## Refinamentos do design system (Fase 1)
 
-- [ ] **Botão `Disabled` no dark mode** — `bg-primary` com `opacity: 0.55`
-      sobre fundo escuro vira oliva/khaki. Funcional, mas não é a melhor
-      leitura visual. Possíveis caminhos:
-  - Substituir `opacity` por classes `disabled:bg-*` dedicadas
-  - Usar `color-mix(in srgb, var(--color-primary) 55%, transparent)`
-  - Atacar quando: chegar a Fase 7 (polish), ou se feedback de usuário pedir.
+- [x] **Botão `Disabled` no dark mode** — resolvido na Fase 7: substituí
+      `opacity: 0.55` por `background: color-mix(... surface-muted)` +
+      `color: color-mix(... ink)`. Agora muta consistente em ambos os temas.
 
-- [ ] **Seção "Search value" do styleguide** — exibe `Search value:` mesmo
-      quando o input está vazio. Cosmético. Esconder o `<p>` com `@if (search())`
-      quando incomodar.
+- [x] **Seção "Search value" do styleguide** — `@if (search())` já envolve
+      o bloco; resolvido em commit posterior à anotação original.
 
 - [ ] **4 warnings PostCSS "& → Empty sub-selector"** no build — não bloqueiam,
       não aparecem no CSS final. Suspeita: vêm de algum processamento interno
