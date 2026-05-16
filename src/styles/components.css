@@ -36,9 +36,14 @@
     box-shadow: none;
   }
 
+  /* Disabled state: mute against the page surface using color-mix so */
+  /* the result reads as "muted" in both light and dark themes, rather */
+  /* than the muddy olive that `opacity: 0.55` produced on dark mode   */
+  /* (see docs/PENDENCIAS — Fase 1 polish item).                       */
   .brutal-interactive:disabled,
   .brutal-interactive[aria-disabled='true'] {
-    opacity: 0.55;
+    background: color-mix(in srgb, var(--color-surface-muted) 80%, transparent);
+    color: color-mix(in srgb, var(--color-ink) 45%, transparent);
     cursor: not-allowed;
   }
 
@@ -62,6 +67,32 @@
 
   .brutal-pulse {
     animation: brutal-pulse 1.4s ease-in-out infinite;
+  }
+
+  /* Decorative diagonal stripes used as a brutalist banner accent.    */
+  /* The repeating gradient draws ink-colored bars at 45° over a       */
+  /* transparent base, so the underlying surface colour still shows.   */
+  .brutal-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 8px,
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 8px,
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 10px
+    );
+  }
+
+  /* Skip-link: anchored top-left, invisible until focused. Standard   */
+  /* a11y pattern so keyboard users can jump past the header.          */
+  .skip-link {
+    position: absolute;
+    inset-inline-start: 1rem;
+    inset-block-start: -3rem;
+    z-index: 50;
+    transition: inset-block-start var(--motion-fast) var(--motion-ease);
+  }
+  .skip-link:focus-visible {
+    inset-block-start: 1rem;
   }
 }
 
