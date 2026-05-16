@@ -1,0 +1,108 @@
+import {
+  isPokemonStatName,
+  isPokemonTypeName,
+  type Pokemon,
+  type PokemonPage,
+  type PokemonSprites,
+  type PokemonStat,
+  type PokemonSummary,
+  type PokemonTypeName,
+} from '@core/domain';
+import type {
+  PokemonDto,
+  PokemonListResponseDto,
+  PokemonNameRefDto,
+  PokemonSpritesDto,
+} from './pokeapi.dto';
+
+/**
+ * Extracts the National Dex number from a PokéAPI resource URL.
+ *
+ *   https://pokeapi.co/api/v2/pokemon/25/   → 25
+ *   /pokemon-species/25                     → 25
+ *
+ * Returns NaN for malformed or non-numeric URLs so callers can treat
+ * invalid refs as absent entries rather than crashing the page.
+ */
+const ID_PATTERN = /\/(\d+)\/?$/;
+export const extractIdFromUrl = (url: string): number => {
+  const match = ID_PATTERN.exec(url);
+  return match?.[1] ? Number(match[1]) : Number.NaN;
+};
+
+const mapSprites = (dto: PokemonSpritesDto): PokemonSprites => ({
+  thumbnail: dto.front_default,
+  artwork: dto.other?.['official-artwork']?.front_default ?? dto.front_default,
+  shiny: dto.front_shiny,
+});
+
+const mapTypes = (slots: PokemonDto['types']): readonly PokemonTypeName[] =>
+  slots
+    .slice()
+    .sort((a, b) => a.slot - b.slot)
+    .map((slot) => slot.type.name)
+    .filter(isPokemonTypeName);
+
+const mapStats = (slots: PokemonDto['stats']): readonly PokemonStat[] =>
+  slots
+    .map((slot): PokemonStat | null => {
+      if (!isPokemonStatName(slot.stat.name)) return null;
+      return { name: slot.stat.name, base: slot.base_stat, effort: slot.effort };
+    })
+    .filter((stat): stat is PokemonStat => stat !== null);
+
+const mapAbilities = (slots: PokemonDto['abilities']): Pokemon['abilities'] =>
+  slots
+    .slice()
+    .sort((a, b) => a.slot - b.slot)
+    .map((slot) => ({ name: slot.ability.name, isHidden: slot.is_hidden }));
+
+export const mapPokemon = (dto: PokemonDto): Pokemon => ({
+  id: dto.id,
+  name: dto.name,
+  heightDecimetres: dto.height,
+  weightHectograms: dto.weight,
+  baseExperience: dto.base_experience,
+  types: mapTypes(dto.types),
+  abilities: mapAbilities(dto.abilities),
+  stats: mapStats(dto.stats),
+  sprites: mapSprites(dto.sprites),
+});
+
+export const mapPokemonSummary = (dto: PokemonDto): PokemonSummary => ({
+  id: dto.id,
+  name: dto.name,
+  types: mapTypes(dto.types),
+  sprites: mapSprites(dto.sprites),
+});
+
+/**
+ * Combines a paginated list response with the hydrated detail responses for
+ * each entry into a PokemonPage. PokéAPI's list endpoint returns only
+ * `{ name, url }` pairs — the repository fans out to /pokemon/{name} so the
+ * mapper receives both halves and can produce ready-to-render cards.
+ */
+export const mapPokemonPage = (
+  list: PokemonListResponseDto,
+  details: readonly PokemonDto[],
+  offset: number,
+  limit: number,
+): PokemonPage => ({
+  items: details.map(mapPokemonSummary),
+  total: list.count,
+  offset,
+  limit,
+  hasNext: list.next !== null,
+  hasPrev: list.previous !== null,
+});
+
+/** Useful for repositories that need just the name index (used by search). */
+export const mapNameRefs = (
+  list: PokemonListResponseDto,
+): readonly { id: number; name: string }[] =>
+  list.results
+    .map((entry: PokemonNameRefDto) => ({
+      id: extractIdFromUrl(entry.url),
+      name: entry.name,
+    }))
+    .filter((ref) => Number.isFinite(ref.id));
