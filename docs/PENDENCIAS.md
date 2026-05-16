@@ -57,6 +57,19 @@ Decisões já tomadas que precisam virar ADRs antes da entrega final:
       mas é "consertado" pelo commit seguinte. Considerar adicionar
       `npm run typecheck` ao pre-commit (custo ~1s) ou cobrir via CI.
 
+## Testes — smart spec do PokemonDetailPage (Fase 5)
+
+- [ ] **`PokemonDetailPage.spec` está com 5 `it.skip`** — `TestBed.createComponent`
+      do componente smart falha com "Component '\_PokemonDetailPage' has unresolved
+      metadata" mesmo após
+      `await TestBed.configureTestingModule({...}).compileComponents()` e
+      `deferBlockBehavior: DeferBlockBehavior.Manual`. Causa provável:
+      interação entre `@defer` e o runner Vitest do `@angular/build:unit-test`.
+      Mitigação atual: as 5 colaboradoras (mapper, repository, dumb skeleton,
+      stats panel, stat bar, evolution chain) têm specs próprias; o smart
+      component é validado por typecheck + build + run manual. Investigar
+      quando atualizar Angular ou descobrir um padrão de teste compatível.
+
 ## i18n / Transloco
 
 - [ ] **Plurals ICU** — usar `@jsverse/transloco-messageformat` para suportar

@@ -8,6 +8,11 @@ const listingRoute: Route = {
   title: 'Pokédex',
 };
 
+const detailRoute: Route = {
+  path: 'pokemon/:name',
+  loadComponent: () => import('@features/pokemon-detail/feature/pokemon-detail.page'),
+};
+
 const styleguideRoute: Route = {
   path: '__styleguide',
   loadComponent: () => import('@features/styleguide/styleguide.page'),
@@ -16,6 +21,7 @@ const styleguideRoute: Route = {
 
 export const routes: Routes = [
   listingRoute,
+  detailRoute,
   // Dev-only kitchen-sink for the brutalist design system. isDevMode()
   // is folded away at build time, so the chunk is unreachable in prod.
   ...(isDevMode() ? [styleguideRoute] : []),
