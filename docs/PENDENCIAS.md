@@ -6,10 +6,10 @@ e uma sugestão de quando atacar.
 
 ## A verificar visualmente
 
-- [ ] **Safelist de `bg-type-*` no styleguide** — fix aplicado em `129abfb`.
-      Recarregar `/__styleguide` em light mode e confirmar que os 18 badges
-      agora têm o fundo colorido correto (water/grass/fighting/poison/flying/
-      psychic/bug/rock/ghost/dragon/dark/steel). Em dark mode já estavam ok.
+- [x] **Safelist de `bg-type-*`** — verificado via Playwright MCP em
+      `01-listing-light.png` / `02-listing-dark.png`. Todos os badges
+      (GRASS, POISON, FIRE, WATER, FLYING, etc.) renderizam coloridos
+      em ambos os temas.
 
 ## Refinamentos do design system (Fase 1)
 

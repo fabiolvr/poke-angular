@@ -42,3 +42,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Playwright MCP verification artifacts
+.playwright-mcp/
+/[0-9][0-9]-*.png
