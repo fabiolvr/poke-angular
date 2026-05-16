@@ -3,3 +3,4 @@ export { DEFAULT_LANG, isSupportedLang, SUPPORTED_LANGS } from './supported-lang
 export type { SupportedLang } from './supported-langs';
 export { provideTranslocoConfig } from './transloco.config';
 export { TranslocoHttpLoader } from './transloco.loader';
+export { provideTranslocoForTesting } from './transloco.testing';
