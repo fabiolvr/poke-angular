@@ -1,3 +1,4 @@
+import type { PokemonSpecies } from './pokemon-species';
 import type { PokemonStat } from './pokemon-stat';
 import type { PokemonTypeName } from './pokemon-type';
 
@@ -54,4 +55,13 @@ export interface Pokemon {
 export interface PokemonAbility {
   readonly name: string;
   readonly isHidden: boolean;
+}
+
+/**
+ * Full detail-page payload. Combines the form-level `Pokemon` (sprites,
+ * stats, abilities, types) with the species-level data needed for the
+ * detail header and evolution section.
+ */
+export interface PokemonDetail extends Pokemon {
+  readonly species: PokemonSpecies;
 }
