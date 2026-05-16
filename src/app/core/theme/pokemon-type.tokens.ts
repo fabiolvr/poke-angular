@@ -1,33 +1,15 @@
 /**
- * Canonical list of the 18 Pokémon types and their mapped design tokens.
+ * Visual tokens for the 18 Pokémon types.
+ *
+ * The type name list itself is owned by the domain (`@core/domain`) — this
+ * file only deals with the design-system mapping (background utility, text
+ * utility, contrast guidance, CSS variable).
  *
  * The CSS variables themselves live in `src/styles/tokens.css` under @theme
- * (e.g. `--color-type-fire`). This file mirrors those names as TS values so
- * features can look up classes/vars without hardcoding strings. If you add a
- * type here, add it there too — the type checker enforces exhaustiveness.
+ * and are safelisted in `src/styles.css` via @source inline so the runtime
+ * type-name lookup keeps generating real utilities.
  */
-export const POKEMON_TYPES = [
-  'normal',
-  'fire',
-  'water',
-  'electric',
-  'grass',
-  'ice',
-  'fighting',
-  'poison',
-  'ground',
-  'flying',
-  'psychic',
-  'bug',
-  'rock',
-  'ghost',
-  'dragon',
-  'dark',
-  'steel',
-  'fairy',
-] as const;
-
-export type PokemonTypeName = (typeof POKEMON_TYPES)[number];
+import type { PokemonTypeName } from '@core/domain';
 
 /** CSS custom-property name (e.g. for inline `style` bindings). */
 export const pokemonTypeVar = (type: PokemonTypeName): string => `var(--color-type-${type})`;
@@ -39,8 +21,8 @@ export const pokemonTypeBgClass = (type: PokemonTypeName): string => `bg-type-${
 export const pokemonTypeTextClass = (type: PokemonTypeName): string => `text-type-${type}`;
 
 /**
- * Contrast guidance: a few type colors (electric, ice, fairy, normal) are too
- * light for white text — flag them so badges render ink-colored labels.
+ * Contrast guidance: a few type colors (electric, ice, fairy, normal, ground)
+ * are too light for white text — flag them so badges render ink-coloured labels.
  */
 const LIGHT_TYPE_BACKGROUNDS = new Set<PokemonTypeName>([
   'electric',

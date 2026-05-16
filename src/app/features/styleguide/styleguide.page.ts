@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { POKEMON_TYPES } from '@core/domain';
 import { LanguageService } from '@core/i18n';
 import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
-import { POKEMON_TYPES, ThemeService, type ThemePreference } from '@core/theme';
+import { ThemeService, type ThemePreference } from '@core/theme';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { LanguageSwitcher } from '@layout/index';
 import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } from '@shared/ui';

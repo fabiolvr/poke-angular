@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { pokemonTypeBgClass, pokemonTypeNeedsDarkLabel, type PokemonTypeName } from '@core/theme';
+import { type PokemonTypeName } from '@core/domain';
+import { pokemonTypeBgClass, pokemonTypeNeedsDarkLabel } from '@core/theme';
 import { cn } from '@core/utils';
 
 export type BrutalBadgeVariant = 'neutral' | 'primary' | 'secondary' | 'accent' | 'pokemon-type';

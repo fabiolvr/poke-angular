@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
-import type { PokemonTypeName } from '@core/theme';
+import type { PokemonTypeName } from '@core/domain';
 import { BrutalBadge, type BrutalBadgeVariant } from './brutal-badge';
 
 @Component({
