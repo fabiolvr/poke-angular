@@ -2,3 +2,11 @@
 
 @import './styles/tokens.css';
 @import './styles/components.css';
+
+/* Safelist the dynamically-composed Pokémon-type utilities. These are
+   built at runtime by pokemonTypeBgClass()/pokemonTypeTextClass(), so
+   Tailwind's static scanner cannot see them — without this directive
+   12 of the 18 types render with an empty (surface-default) background. */
+@source inline(
+  "{bg,text}-type-{normal,fire,water,electric,grass,ice,fighting,poison,ground,flying,psychic,bug,rock,ghost,dragon,dark,steel,fairy}"
+);
