@@ -48,6 +48,15 @@ Decisões já tomadas que precisam virar ADRs antes da entrega final:
 - [ ] **ADR-0009** — Busca client-side híbrida sobre índice cacheado vs
       server-side
 
+## Processo / quality gate
+
+- [ ] **Pré-commit roda só lint-staged (format + eslint nos arquivos
+      modificados)** — não captura quebras de import cross-arquivo, p. ex.
+      um `index.ts` que referencia um arquivo ainda não criado. Aconteceu
+      no commit `59a19e2` (`refactor(domain)`): commit isolado quebra build,
+      mas é "consertado" pelo commit seguinte. Considerar adicionar
+      `npm run typecheck` ao pre-commit (custo ~1s) ou cobrir via CI.
+
 ## i18n / Transloco
 
 - [ ] **Plurals ICU** — usar `@jsverse/transloco-messageformat` para suportar
