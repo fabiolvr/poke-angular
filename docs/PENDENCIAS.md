@@ -26,23 +26,21 @@ e uma sugestão de quando atacar.
       Vale investigar se em algum momento esses warnings escalarem ou se o
       build do Tailwind atualizar.
 
-## ADRs a escrever (planejado para Fase 8)
+## ADRs
 
-Decisões já tomadas que precisam virar ADRs antes da entrega final:
+Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
 
-- [ ] **ADR-0002** — Signals como mecanismo primário vs NgRx/NGXS
-- [ ] **ADR-0003** — Estratégia de cache HTTP (in-memory LRU vs localStorage)
-- [ ] **ADR-0004** — Tailwind: tokens via `@theme` + classes `.brutal-*` em
-      `@layer components` (vs `@apply`, vs utility-soup nos templates)
-- [ ] **ADR-0005** — Design tokens neobrutalistas, mapeamento de tipos de
+- [x] **ADR-0002** — Signals como mecanismo primário vs NgRx/NGXS
+- [x] **ADR-0003** — Estratégia de cache HTTP (in-memory LRU vs localStorage)
+- [x] **ADR-0004** — Tailwind: tokens via `@theme` + `.brutal-*` em
+      `@layer components`
+- [x] **ADR-0005** — Design tokens neobrutalistas, mapeamento de tipos de
       Pokémon, dark mode em 3 camadas
-- [ ] **ADR-0006** — i18n: Transloco com lazy scopes, nomes via
-      `/pokemon-species`, formatação via `Intl.*`
-- [ ] **ADR-0007** — Vitest builder nativo (`@angular/build:unit-test`) vs
-      wrapper `@analogjs/vitest-angular`
-- [ ] **ADR-0008** — Paginação clássica (offset/limit) vs scroll infinito
-- [ ] **ADR-0009** — Busca client-side híbrida sobre índice cacheado vs
-      server-side
+- [x] **ADR-0006** — i18n: Transloco com troca em runtime + nomes via
+      `/pokemon-species` + `Intl.*`
+- [x] **ADR-0007** — Vitest builder nativo (`@angular/build:unit-test`)
+- [x] **ADR-0008** — Paginação clássica (offset/limit) vs scroll infinito
+- [x] **ADR-0009** — Busca client-side sobre índice cacheado
 
 ## Processo / quality gate
 
