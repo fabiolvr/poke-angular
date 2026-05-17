@@ -19,9 +19,16 @@ const FALLBACK_SPRITE = '/img/missing-sprite.svg';
  *
  * Sprites are addressed directly via the PokeAPI/sprites GitHub mirror
  * rather than fetched as part of the chain payload — evolution chains
- * only reference species ids (1-1025, all canonical), and the HOME
- * render path is reliably populated for that range, so we get
- * thumbnails for free without N extra repository calls.
+ * only reference species ids (1-1025, all canonical), and the
+ * official-artwork path is reliably populated for that range, so we
+ * get thumbnails for free without N extra repository calls. Using the
+ * official artwork (rather than the lower-res HOME render) keeps the
+ * chain visually consistent with the detail page hero.
+ *
+ * Trade-off: each artwork PNG is ~100–200 kB at full resolution. Even
+ * displayed at 80 px, the browser still downloads the full file. For
+ * branched chains (Eevee, 8 nodes) the chain costs ~1 MB once;
+ * subsequent navigation is cached by the browser.
  */
 @Component({
   selector: 'app-pokemon-evolution-chain',
@@ -103,6 +110,6 @@ export class PokemonEvolutionChain {
 
   protected spriteUrl(id: number): string {
     if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
   }
 }
