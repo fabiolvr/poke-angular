@@ -145,7 +145,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                           <app-brutal-badge size="sm" variant="neutral">
                             <span class="capitalize">{{ ability.name }}</span>
                             @if (ability.isHidden) {
-                              <span class="text-ink-mute ms-1">
+                              <span class="text-text-mutedd ms-1">
                                 {{ t('detail.hiddenAbility') }}
                               </span>
                             }
