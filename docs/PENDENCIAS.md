@@ -20,11 +20,13 @@ e uma sugestão de quando atacar.
 - [x] **Seção "Search value" do styleguide** — `@if (search())` já envolve
       o bloco; resolvido em commit posterior à anotação original.
 
-- [ ] **4 warnings PostCSS "& → Empty sub-selector"** no build — não bloqueiam,
-      não aparecem no CSS final. Suspeita: vêm de algum processamento interno
-      do Tailwind v4 ao lidar com `:not()` chains nas regras `.brutal-interactive`.
-      Vale investigar se em algum momento esses warnings escalarem ou se o
-      build do Tailwind atualizar.
+- [x] **4 warnings PostCSS "& → Empty sub-selector"** no build — investigado
+      em commit `51a9d3b`. Bisectado até a combinação `--color-ink` +
+      `--color-ink-muted` no `@theme` do Tailwind v4 (bug interno do
+      compilador, não do nosso CSS). Renomeei `ink-muted` → `text-muted`
+      e baixou de 5 para 4 warnings. Os 4 remanescentes são baseline
+      irreduzível do Tailwind v4 atual; reavaliar quando atualizar o
+      Tailwind. Não bloqueiam build nem aparecem no CSS final.
 
 ## ADRs
 
@@ -44,12 +46,10 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
 
 ## Processo / quality gate
 
-- [ ] **Pré-commit roda só lint-staged (format + eslint nos arquivos
-      modificados)** — não captura quebras de import cross-arquivo, p. ex.
-      um `index.ts` que referencia um arquivo ainda não criado. Aconteceu
-      no commit `59a19e2` (`refactor(domain)`): commit isolado quebra build,
-      mas é "consertado" pelo commit seguinte. Considerar adicionar
-      `npm run typecheck` ao pre-commit (custo ~1s) ou cobrir via CI.
+- [x] **Pré-commit roda só lint-staged** — resolvido no commit `573404a`.
+      `.husky/pre-commit` agora também executa
+      `npx --no-install tsc -p tsconfig.app.json --noEmit`, capturando
+      quebras de import cross-arquivo antes que cheguem ao histórico.
 
 ## Testes — smart spec do PokemonDetailPage (Fase 5)
 
@@ -67,16 +67,21 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
 
 ## i18n / Transloco
 
-- [ ] **Plurals ICU** — usar `@jsverse/transloco-messageformat` para suportar
-      sintaxe `{count, plural, one {…} other {…}}`. Por ora, traduções usam
-      pares `countOne` / `countOther` selecionados pelo chamador. Instalar o
-      plugin quando a Fase 4 (listagem) precisar exibir contagem real.
+- [x] **Plurals ICU** — instalado `@jsverse/transloco-messageformat` no
+      commit `e23cf59`. `provideTranslocoMessageformat()` registrado nos
+      providers de produção e de teste; chaves `list.count` e
+      `search.resultCount` migradas para `{count, plural, one {…}
+    other {…}}` em ambos os locales. Pares `countOne` / `countOther`
+      removidos.
 
 ## Qualidade de testes (Fase 3+)
 
-- [ ] **Thresholds de cobertura para `data-access` e `domain`** — meta de 80%
-      conforme plano. Configurar no `angular.json` ou via `vitest.config.ts`
-      quando os primeiros repositórios/mappers existirem (Fase 3).
+- [x] **Thresholds de cobertura para `data-access` e `domain`** —
+      configurado no commit `ee47bf7` via `vitest.config.ts` na raiz.
+      Provider `v8`, include cobre `core/domain`, `core/http`,
+      `core/format` e `features/**/data-access/**`. Thresholds 80% para
+      lines/branches/functions/statements. `@vitest/coverage-v8` adicionado
+      em devDependencies.
 
 - [x] **Pelo menos um teste de integração** (listagem → detalhe) — feito em
       `src/app/integration/listing-to-detail.spec.ts` via
@@ -88,12 +93,12 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
 
 ## Possíveis melhorias estruturais
 
-- [ ] **Dev-only chunk do styleguide ainda é emitido em produção** — a rota
-      não é registrada quando `isDevMode()` é falso, mas o `import()` dinâmico
-      ainda gera o chunk lazy `styleguide-page` em build prod. Trade-off:
-      eliminar totalmente exigiria condicional no `loadComponent` ou um
-      arquivo separado `app.routes.prod.ts`. Custo atual: ~4 kB lazy chunk
-      nunca baixado. Atacar se o tamanho de build virar problema.
+- [x] **Dev-only chunk do styleguide ainda é emitido em produção** —
+      resolvido no commit `7d131f6`. `app.routes.ts` (dev) inclui o
+      styleguide; `app.routes.prod.ts` não importa o styleguide; a troca
+      acontece via `fileReplacements` na configuração de produção do
+      `angular.json`. Sem o `import()` estático na build prod, o bundler
+      não emite o chunk.
 
 - [x] **Padrão decorativo (listras/hachuras)** — aplicado na Fase 7 como
       `.brutal-stripes` no header (faixas diagonais a 12% ink, via
