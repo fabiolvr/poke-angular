@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { makeEnvironmentProviders, type EnvironmentProviders } from '@angular/core';
 import { provideTransloco, type Translation, type TranslocoLoader } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { of, type Observable } from 'rxjs';
 import { DEFAULT_LANG, SUPPORTED_LANGS } from './supported-langs';
 
@@ -45,6 +47,7 @@ const PT_BR: Translation = {
   'list.pageOf': 'Página {{ page }} de {{ total }}',
   'list.paginationLabel': 'Paginação',
   'list.cardAriaLabel': '{{ name }}, {{ number }}',
+  'list.count': '{count, plural, one {1 Pokémon} other {# Pokémons}}',
   'detail.back': 'Voltar',
   'detail.height': 'Altura',
   'detail.weight': 'Peso',
@@ -72,8 +75,7 @@ const PT_BR: Translation = {
   'search.typeToStart': 'Comece a digitar.',
   'search.empty': 'Nada para {{ query }}.',
   'search.resultsLabel': 'Resultados da busca',
-  'search.resultCountOne': '1 resultado',
-  'search.resultCountOther': '{{ count }} resultados',
+  'search.resultCount': '{count, plural, one {1 resultado} other {# resultados}}',
   'search.showingFirst': 'Exibindo {{ shown }} de {{ total }}.',
   'search.clear': 'Limpar',
 };
@@ -92,6 +94,7 @@ const EN: Translation = {
   'list.pageOf': 'Page {{ page }} of {{ total }}',
   'list.paginationLabel': 'Pagination',
   'list.cardAriaLabel': '{{ name }}, {{ number }}',
+  'list.count': '{count, plural, one {1 Pokémon} other {# Pokémon}}',
   'detail.back': 'Back',
   'detail.height': 'Height',
   'detail.weight': 'Weight',
@@ -119,8 +122,7 @@ const EN: Translation = {
   'search.typeToStart': 'Start typing.',
   'search.empty': 'Nothing for {{ query }}.',
   'search.resultsLabel': 'Search results',
-  'search.resultCountOne': '1 result',
-  'search.resultCountOther': '{{ count }} results',
+  'search.resultCount': '{count, plural, one {1 result} other {# results}}',
   'search.showingFirst': 'Showing {{ shown }} of {{ total }}.',
   'search.clear': 'Clear',
 };
@@ -139,14 +141,17 @@ class InMemoryTranslocoLoader implements TranslocoLoader {
  * Skips HttpClient entirely, so tests don't need to flush translation
  * responses through HttpTestingController.
  */
-export const provideTranslocoForTesting = () =>
-  provideTransloco({
-    config: {
-      availableLangs: [...SUPPORTED_LANGS],
-      defaultLang: DEFAULT_LANG,
-      fallbackLang: DEFAULT_LANG,
-      reRenderOnLangChange: true,
-      prodMode: true,
-    },
-    loader: InMemoryTranslocoLoader,
-  });
+export const provideTranslocoForTesting = (): EnvironmentProviders =>
+  makeEnvironmentProviders([
+    provideTransloco({
+      config: {
+        availableLangs: [...SUPPORTED_LANGS],
+        defaultLang: DEFAULT_LANG,
+        fallbackLang: DEFAULT_LANG,
+        reRenderOnLangChange: true,
+        prodMode: true,
+      },
+      loader: InMemoryTranslocoLoader,
+    }),
+    provideTranslocoMessageformat(),
+  ]);

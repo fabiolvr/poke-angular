@@ -38,8 +38,7 @@
   "list": {
     "title": "Pokédex",
     "empty": "No Pokémon to show.",
-    "countOne": "1 Pokémon",
-    "countOther": "{{ count }} Pokémon",
+    "count": "{count, plural, one {1 Pokémon} other {# Pokémon}}",
     "prev": "Previous",
     "next": "Next",
     "pageOf": "Page {{ page }} of {{ total }}",
@@ -54,8 +53,7 @@
     "typeToStart": "Start typing to see results.",
     "empty": "No Pokémon matches {{ query }}.",
     "resultsLabel": "Search results",
-    "resultCountOne": "1 result",
-    "resultCountOther": "{{ count }} results",
+    "resultCount": "{count, plural, one {1 result} other {# results}}",
     "showingFirst": "Showing the first {{ shown }} of {{ total }}.",
     "clear": "Clear"
   },
