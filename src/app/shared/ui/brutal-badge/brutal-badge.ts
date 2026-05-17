@@ -14,7 +14,7 @@ const SIZE_CLASSES: Record<BrutalBadgeSize, string> = {
 
 const NEUTRAL_VARIANT_CLASSES: Record<Exclude<BrutalBadgeVariant, 'pokemon-type'>, string> = {
   neutral: 'bg-surface text-ink',
-  primary: 'bg-primary text-ink',
+  primary: 'bg-primary text-ink-static',
   secondary: 'bg-secondary text-white',
   accent: 'bg-accent text-white',
 };
@@ -45,7 +45,10 @@ export class BrutalBadge {
 
     const variantClasses =
       variant === 'pokemon-type' && type
-        ? cn(pokemonTypeBgClass(type), pokemonTypeNeedsDarkLabel(type) ? 'text-ink' : 'text-white')
+        ? cn(
+            pokemonTypeBgClass(type),
+            pokemonTypeNeedsDarkLabel(type) ? 'text-ink-static' : 'text-white',
+          )
         : NEUTRAL_VARIANT_CLASSES[variant === 'pokemon-type' ? 'neutral' : variant];
 
     return cn(

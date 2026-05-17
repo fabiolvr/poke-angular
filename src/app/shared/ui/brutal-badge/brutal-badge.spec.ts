@@ -43,13 +43,13 @@ describe('BrutalBadge', () => {
     expect(span.className).toContain('text-white');
   });
 
-  it('uses ink label on a light type background', () => {
+  it('uses theme-static dark label on a light type background', () => {
     const { fixture, host, span } = setup();
     host.variant.set('pokemon-type');
     host.pokemonType.set('electric');
     fixture.detectChanges();
     expect(span.className).toContain('bg-type-electric');
-    expect(span.className).toContain('text-ink');
+    expect(span.className).toContain('text-ink-static');
   });
 
   it('falls back to neutral when pokemon-type variant has no type', () => {

@@ -14,6 +14,12 @@
   --color-ink-soft: #4a4a4a;
   --color-text-muted: #6b6b6b;
 
+  /* Theme-invariant ink. Use on backgrounds that stay the same      */
+  /* colour across themes (yellow primary, light Pokémon type        */
+  /* swatches) so the label keeps the right contrast in dark mode.   */
+  /* Deliberately NOT overridden in [data-theme='dark'].             */
+  --color-ink-static: #0a0a0a;
+
   /* Brand intents */
   --color-primary: #ffd23f;
   --color-secondary: #3b82f6;

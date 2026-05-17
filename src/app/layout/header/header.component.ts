@@ -33,7 +33,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
         <nav [attr.aria-label]="'app.title' | transloco" class="flex items-center gap-2">
           <a
             routerLink="/"
-            routerLinkActive="brutal-surface bg-primary text-ink"
+            routerLinkActive="brutal-surface bg-primary text-ink-static"
             [routerLinkActiveOptions]="{ exact: true }"
             class="font-display rounded-md px-3 py-1.5 text-sm font-bold no-underline"
           >
@@ -41,7 +41,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
           </a>
           <a
             routerLink="/search"
-            routerLinkActive="brutal-surface bg-primary text-ink"
+            routerLinkActive="brutal-surface bg-primary text-ink-static"
             class="font-display rounded-md px-3 py-1.5 text-sm font-bold no-underline"
           >
             {{ 'nav.search' | transloco }}
