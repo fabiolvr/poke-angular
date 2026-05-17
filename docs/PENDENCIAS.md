@@ -78,8 +78,13 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
       conforme plano. Configurar no `angular.json` ou via `vitest.config.ts`
       quando os primeiros repositórios/mappers existirem (Fase 3).
 
-- [ ] **Pelo menos um teste de integração** (listagem → detalhe) — exigência
-      explícita do plano. Encaixar no fim da Fase 5.
+- [x] **Pelo menos um teste de integração** (listagem → detalhe) — feito em
+      `src/app/integration/listing-to-detail.spec.ts` via
+      `RouterTestingHarness`. Monta `/`, settle o `rxResource` da listagem
+      com 1 card, segue o `routerLink` para `/pokemon/pikachu`, settle o
+      `rxResource` do detalhe e valida que o componente smart de detalhe
+      renderizou nome localizado, dex number e genus. Stubs controlados
+      por `ReplaySubject` em ambos os repositórios.
 
 ## Possíveis melhorias estruturais
 
