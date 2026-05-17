@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { type ComponentRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideTranslocoForTesting } from '@core/i18n';
@@ -39,8 +40,9 @@ const setup = () => {
   });
 
   const fixture = TestBed.createComponent(PokemonSearchPage);
+  const ref: ComponentRef<PokemonSearchPage> = fixture.componentRef;
   fixture.detectChanges();
-  return { fixture, root: fixture.nativeElement as HTMLElement, indexSubject };
+  return { fixture, ref, root: fixture.nativeElement as HTMLElement, indexSubject };
 };
 
 const flush = async (fixture: ReturnType<typeof setup>['fixture']): Promise<void> => {
@@ -134,5 +136,63 @@ describe('PokemonSearchPage', () => {
     root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
     expect((root.querySelector('input') as HTMLInputElement).value).toBe('');
+  });
+
+  it('seeds the input from ?q= and shows matching results once the index resolves', async () => {
+    const { fixture, ref, root, indexSubject } = setup();
+    ref.setInput('q', 'pika');
+    fixture.detectChanges();
+    indexSubject.next(INDEX);
+    // Walk past the debounce so results() sees 'pika'.
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await flush(fixture);
+
+    expect((root.querySelector('input') as HTMLInputElement).value).toBe('pika');
+    const items = Array.from(root.querySelectorAll('li'));
+    expect(items).toHaveLength(1);
+    expect(items[0]?.textContent).toContain('pikachu');
+  });
+
+  it('writes the debounced query back to ?q= via router.navigate(replaceUrl)', async () => {
+    const { fixture, root, indexSubject } = setup();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    indexSubject.next(INDEX);
+    await flush(fixture);
+
+    await type(fixture, root, 'pika');
+
+    expect(navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { q: 'pika' },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      }),
+    );
+  });
+
+  it('removes ?q= from the URL when the user clears the query', async () => {
+    const { fixture, ref, root, indexSubject } = setup();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    ref.setInput('q', 'pika');
+    fixture.detectChanges();
+    indexSubject.next(INDEX);
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await flush(fixture);
+    navigate.mockClear();
+
+    root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await flush(fixture);
+
+    expect(navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { q: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      }),
+    );
   });
 });

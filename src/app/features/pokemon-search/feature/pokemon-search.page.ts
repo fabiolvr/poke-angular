@@ -4,7 +4,10 @@ import {
   computed,
   effect,
   inject,
+  input,
+  linkedSignal,
   signal,
+  untracked,
 } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
@@ -93,11 +96,7 @@ const formatDex = (id: number): string => `#${id.toString().padStart(4, '0')}`;
         }
         @default {
           <div class="sr-only" role="status" aria-live="polite">
-            {{
-              results().length === 1
-                ? t('search.resultCountOne')
-                : t('search.resultCountOther', { count: results().length })
-            }}
+            {{ t('search.resultCount', { count: results().length }) }}
           </div>
           @if (totalMatches() > MAX_RESULTS) {
             <p class="text-ink-soft text-sm">
@@ -147,7 +146,22 @@ export default class PokemonSearchPage {
   private readonly indexRepo = inject(POKEMON_INDEX_REPOSITORY);
   private readonly router = inject(Router);
 
-  protected readonly query = signal('');
+  /**
+   * `?q=` query param wired in via `withComponentInputBinding()`. Reading
+   * it as an input keeps deep links and back navigation working: a back
+   * from /pokemon/:name lands here with the original query restored.
+   *
+   * `withComponentInputBinding()` passes `undefined` when the param is
+   * absent (it does not honour the `input()` default), so the linkedSignal
+   * below coerces back to `''`.
+   */
+  readonly q = input<string | undefined>(undefined);
+
+  /**
+   * Writable signal seeded from `q()` so user typing edits it freely
+   * while URL changes (deep link, browser back) reseed the input.
+   */
+  protected readonly query = linkedSignal<string>(() => this.q() ?? '');
   protected readonly focusedIndex = signal(-1);
 
   protected readonly indexResource = rxResource<readonly PokemonRef[], void>({
@@ -228,6 +242,31 @@ export default class PokemonSearchPage {
       const count = this.results().length;
       const current = this.focusedIndex();
       if (current >= count) this.focusedIndex.set(count === 0 ? -1 : count - 1);
+    });
+
+    // Mirror the debounced query back into `?q=`. `untracked` on `q()`
+    // keeps the effect from depending on its own write (which would
+    // re-fire on every navigate). `replaceUrl: true` avoids polluting
+    // the back-history with one entry per debounced keystroke.
+    //
+    // `debouncedQuery` seeds with `''` (toSignal initialValue) and only
+    // catches up to `q()` after `debounceTime(300)` ticks. Skipping the
+    // first effect run prevents a transient empty value from wiping out
+    // `?q=` when the user lands here via deep link or browser back.
+    let initialized = false;
+    effect(() => {
+      const next = this.debouncedQuery();
+      if (!initialized) {
+        initialized = true;
+        return;
+      }
+      const current = untracked(this.q) ?? '';
+      if (next === current) return;
+      void this.router.navigate([], {
+        queryParams: { q: next || null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     });
   }
 
