@@ -1,6 +1,11 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { IMAGE_LOADER, type ImageLoaderConfig } from '@angular/common';
-import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  type ApplicationConfig,
+  inject,
+  provideBrowserGlobalErrorListeners,
+  provideEnvironmentInitializer,
+} from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -10,6 +15,7 @@ import {
 
 import { baseUrlInterceptor, cacheInterceptor, errorInterceptor } from '@core/http';
 import { provideTranslocoConfig } from '@core/i18n';
+import { NavigationHistoryService } from '@core/navigation';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -29,6 +35,16 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([baseUrlInterceptor, cacheInterceptor, errorInterceptor]),
     ),
     provideTranslocoConfig(),
+    // Eagerly instantiate NavigationHistoryService so it subscribes to
+    // Router events from the very first NavigationEnd. Without this, the
+    // service is only created when PokemonDetailPage (lazy) injects it,
+    // by which point the user's path through /, /search, /search?q=foo,
+    // /pokemon/:name has already happened and been missed — the detail
+    // page's back button then mistakes the journey for a deep link and
+    // sends the user to '/' instead of back to /search?q=foo.
+    provideEnvironmentInitializer(() => {
+      inject(NavigationHistoryService);
+    }),
     // Pass-through image loader. PokéAPI sprites live on
     // raw.githubusercontent.com and have no resize endpoint, so we return
     // the src unchanged — but providing a loader silences the dev warning
