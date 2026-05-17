@@ -32,7 +32,7 @@ const splitOnQuery = (text: string, query: string): readonly Segment[] => {
     <span>
       @for (segment of segments(); track $index) {
         @if (segment.match) {
-          <mark class="bg-primary text-ink-static rounded-sm px-0.5">{{ segment.text }}</mark>
+          <mark class="bg-primary text-ink rounded-sm px-0.5">{{ segment.text }}</mark>
         } @else {
           <span>{{ segment.text }}</span>
         }

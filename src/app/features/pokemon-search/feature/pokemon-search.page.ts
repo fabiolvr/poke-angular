@@ -212,7 +212,7 @@ export default class PokemonSearchPage {
 
   protected resultLinkClasses(index: number): string {
     const base = 'brutal-surface brutal-focusable flex items-center gap-3 px-4 py-3 no-underline';
-    return index === this.focusedIndex() ? `${base} bg-primary text-ink-static` : base;
+    return index === this.focusedIndex() ? `${base} bg-primary text-ink` : base;
   }
 
   /**

@@ -4,7 +4,7 @@ export type BrutalButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 export type BrutalButtonSize = 'sm' | 'md' | 'lg';
 
 const VARIANT_CLASSES: Record<BrutalButtonVariant, string> = {
-  primary: 'bg-primary text-ink-static',
+  primary: 'bg-primary text-ink',
   secondary: 'bg-secondary text-white',
   danger: 'bg-accent text-white',
   ghost: 'bg-surface text-ink',
