@@ -8,7 +8,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalCard, BrutalSkeleton } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 
-const FALLBACK_SPRITE = '/img/missing-sprite.svg';
+const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 /**
  * Self-contained evolution chain. Owns its own rxResource so the parent

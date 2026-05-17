@@ -6,7 +6,7 @@ import { formatPokedexNumber } from '@core/format';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalBadge, BrutalCard } from '@shared/ui';
 
-const FALLBACK_SPRITE = '/img/missing-sprite.svg';
+const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 /**
  * Card-sized presentation of a Pokémon. Stateless — receives a

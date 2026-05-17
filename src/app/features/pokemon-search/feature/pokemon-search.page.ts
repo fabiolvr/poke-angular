@@ -20,7 +20,7 @@ import { HighlightedText } from '../ui/highlighted-text.component';
 
 const MAX_RESULTS = 50;
 const DEBOUNCE_MS = 300;
-const FALLBACK_SPRITE = '/img/missing-sprite.svg';
+const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 const formatDex = (id: number): string => `#${id.toString().padStart(4, '0')}`;
 

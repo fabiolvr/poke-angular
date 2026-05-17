@@ -64,12 +64,14 @@ describe('PokemonCard', () => {
     expect(anchor?.getAttribute('href')).toBe('/pokemon/pikachu');
   });
 
-  it('falls back to /img/missing-sprite.svg when thumbnail is null', () => {
+  it('falls back to img/missing-sprite.svg when thumbnail is null', () => {
     const { fixture, host, root } = setup();
     host.pokemon.set({ ...pikachu, sprites: { thumbnail: null, artwork: null, shiny: null } });
     fixture.detectChanges();
     const img = root.querySelector('img');
-    expect(img?.getAttribute('src')).toBe('/img/missing-sprite.svg');
+    // Relative path so the browser resolves it against <base href>, which is
+    // `/` in dev and `/poke-angular/` in the GH Pages build.
+    expect(img?.getAttribute('src')).toBe('img/missing-sprite.svg');
   });
 
   it('exposes a localized aria-label combining name and number', () => {

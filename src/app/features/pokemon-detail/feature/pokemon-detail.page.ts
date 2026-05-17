@@ -23,7 +23,7 @@ import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
 import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
 import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
 
-const FALLBACK_SPRITE = '/img/missing-sprite.svg';
+const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
   'pt-BR': ['pt-br', 'pt-BR', 'pt', 'en'],
