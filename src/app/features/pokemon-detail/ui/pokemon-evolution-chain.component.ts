@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -7,17 +8,25 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalCard, BrutalSkeleton } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 
+const FALLBACK_SPRITE = '/img/missing-sprite.svg';
+
 /**
  * Self-contained evolution chain. Owns its own rxResource so the parent
  * detail page can drop it behind `@defer (on viewport)` without
  * coordinating fetches. Renders the chain flattened depth-first — Eevee
  * shows as eevee → vaporeon, jolteon, flareon, etc. all at the same
  * level. Each node links back into /pokemon/{name}.
+ *
+ * Sprites are addressed directly via the PokeAPI/sprites GitHub mirror
+ * rather than fetched as part of the chain payload — evolution chains
+ * only reference species ids (1-1025, all canonical), and the HOME
+ * render path is reliably populated for that range, so we get
+ * thumbnails for free without N extra repository calls.
  */
 @Component({
   selector: 'app-pokemon-evolution-chain',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BrutalCard, BrutalSkeleton, RouterLink, TranslocoPipe],
+  imports: [BrutalCard, BrutalSkeleton, NgOptimizedImage, RouterLink, TranslocoPipe],
   template: `
     <section aria-labelledby="evolution-heading" class="space-y-3">
       <h2 id="evolution-heading" class="font-display text-xl font-bold">
@@ -26,9 +35,9 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 
       @if (resource.isLoading()) {
         <div class="flex flex-wrap items-center gap-3" aria-busy="true">
-          <app-brutal-skeleton shape="block" width="120px" height="64px" />
-          <app-brutal-skeleton shape="block" width="120px" height="64px" />
-          <app-brutal-skeleton shape="block" width="120px" height="64px" />
+          <app-brutal-skeleton shape="block" width="140px" height="160px" />
+          <app-brutal-skeleton shape="block" width="140px" height="160px" />
+          <app-brutal-skeleton shape="block" width="140px" height="160px" />
         </div>
       } @else if (errorKey() !== null) {
         <app-brutal-card role="alert" aria-live="polite" padding="sm">
@@ -44,12 +53,19 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
             <li class="flex items-center gap-3">
               <a
                 [routerLink]="['/pokemon', node.speciesName]"
-                class="brutal-surface brutal-interactive brutal-focusable inline-flex flex-col items-center gap-1 px-4 py-2"
+                class="brutal-surface brutal-interactive brutal-focusable inline-flex flex-col items-center gap-1 px-3 py-2 no-underline"
               >
                 <span class="font-mono text-xs">#{{ padded(node.speciesId) }}</span>
-                <span class="font-display text-sm font-bold capitalize">{{
-                  node.speciesName
-                }}</span>
+                <img
+                  [ngSrc]="spriteUrl(node.speciesId)"
+                  [alt]="node.speciesName"
+                  width="80"
+                  height="80"
+                  class="size-20"
+                />
+                <span class="font-display text-sm font-bold capitalize">
+                  {{ node.speciesName }}
+                </span>
               </a>
               @if (!last) {
                 <span aria-hidden="true" class="font-display text-xl font-bold">→</span>
@@ -83,5 +99,10 @@ export class PokemonEvolutionChain {
 
   protected padded(id: number): string {
     return id.toString().padStart(4, '0');
+  }
+
+  protected spriteUrl(id: number): string {
+    if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
   }
 }
