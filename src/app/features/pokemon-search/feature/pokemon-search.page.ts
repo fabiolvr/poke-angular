@@ -17,6 +17,7 @@ import { HighlightedText } from '../ui/highlighted-text.component';
 
 const MAX_RESULTS = 50;
 const DEBOUNCE_MS = 300;
+const FALLBACK_SPRITE = '/img/missing-sprite.svg';
 
 const formatDex = (id: number): string => `#${id.toString().padStart(4, '0')}`;
 
@@ -120,6 +121,15 @@ const formatDex = (id: number): string => `#${id.toString().padStart(4, '0')}`;
                   (mouseenter)="focusedIndex.set(index)"
                   (focus)="focusedIndex.set(index)"
                 >
+                  <img
+                    [src]="spriteUrl(result.id)"
+                    [alt]="result.name"
+                    width="48"
+                    height="48"
+                    loading="lazy"
+                    class="size-12 shrink-0"
+                    (error)="onSpriteError($event)"
+                  />
                   <span class="font-mono text-xs">{{ formatDex(result.id) }}</span>
                   <span class="font-display text-base font-bold capitalize">
                     <app-highlighted-text [text]="result.name" [query]="debouncedQuery()" />
@@ -189,6 +199,26 @@ export default class PokemonSearchPage {
   protected resultLinkClasses(index: number): string {
     const base = 'brutal-surface brutal-focusable flex items-center gap-3 px-4 py-3 no-underline';
     return index === this.focusedIndex() ? `${base} bg-primary text-ink` : base;
+  }
+
+  /**
+   * Sprite URL derived directly from the pokémon id (same path the
+   * evolution chain and detail hero use). Plain <img> + native
+   * `loading="lazy"` lets the browser skip rows off-screen; the
+   * `onSpriteError` handler swaps to the local placeholder for the
+   * rare form ids that don't have artwork uploaded yet (fan-added
+   * Mega/Gigantamax stubs past id 10300+).
+   */
+  protected spriteUrl(id: number): string {
+    if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+  }
+
+  protected onSpriteError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (img && !img.src.endsWith(FALLBACK_SPRITE)) {
+      img.src = FALLBACK_SPRITE;
+    }
   }
 
   constructor() {
