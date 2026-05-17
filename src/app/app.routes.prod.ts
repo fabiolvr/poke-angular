@@ -18,16 +18,10 @@ const detailRoute: Route = {
   loadComponent: () => import('@features/pokemon-detail/feature/pokemon-detail.page'),
 };
 
-const styleguideRoute: Route = {
-  path: '__styleguide',
-  loadComponent: () => import('@features/styleguide/styleguide.page'),
-  title: 'Styleguide',
-};
-
 /**
- * Development route table — includes the kitchen-sink styleguide at
- * `/__styleguide`. Production builds swap this file for
- * `app.routes.prod.ts` via angular.json `fileReplacements`, so the
- * styleguide chunk is tree-shaken out of the prod bundle entirely.
+ * Production route table. Drops the dev-only `/__styleguide` route so
+ * the styleguide chunk never reaches the production bundle (no static
+ * import statement here for the bundler to follow). Swapped in via
+ * angular.json `fileReplacements` on the production configuration.
  */
-export const routes: Routes = [listingRoute, searchRoute, detailRoute, styleguideRoute];
+export const routes: Routes = [listingRoute, searchRoute, detailRoute];
