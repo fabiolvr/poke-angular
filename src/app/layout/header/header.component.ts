@@ -1,8 +1,21 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
+
+/**
+ * The shorthand `{ exact: true }` expands to `queryParams: 'exact'` internally
+ * — meaning `/?page=2` stops matching `/`. The listing page deep-links pages
+ * via `?page=N`, so we explicitly opt query params (and matrix/fragment) out
+ * of the match while still pinning the path to root.
+ */
+const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
+  paths: 'exact',
+  queryParams: 'ignored',
+  matrixParams: 'ignored',
+  fragment: 'ignored',
+};
 
 /**
  * Brutalist app header.
@@ -34,7 +47,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
           <a
             routerLink="/"
             routerLinkActive="brutal-surface bg-primary text-ink"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="listLinkMatchOptions"
             class="font-display rounded-md px-3 py-1.5 text-sm font-bold no-underline"
           >
             {{ 'nav.list' | transloco }}
@@ -56,4 +69,6 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
     </header>
   `,
 })
-export class AppHeader {}
+export class AppHeader {
+  protected readonly listLinkMatchOptions = LIST_LINK_MATCH_OPTIONS;
+}
