@@ -60,7 +60,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
     TranslocoDirective,
   ],
   template: `
-    <main *transloco="let t" class="mx-auto max-w-4xl space-y-6 p-6">
+    <main *transloco="let t" class="mx-auto flex max-w-4xl flex-col gap-8 p-6">
       <app-brutal-button variant="ghost" size="sm" (pressed)="back()">
         ← {{ t('detail.back') }}
       </app-brutal-button>
@@ -79,7 +79,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
         }
         @default {
           @if (detail(); as d) {
-            <article class="space-y-6">
+            <article class="flex flex-col gap-6">
               <app-brutal-card padding="lg" extraClass="grid gap-6 md:grid-cols-[260px_1fr]">
                 <div class="flex flex-col items-center gap-3">
                   <img

@@ -48,7 +48,7 @@ import {
     TranslocoDirective,
   ],
   template: `
-    <main *transloco="let t" class="mx-auto max-w-6xl space-y-6 p-6">
+    <main *transloco="let t" class="mx-auto flex max-w-6xl flex-col gap-8 p-6">
       <header class="flex items-end justify-between gap-4">
         <h1 class="font-display text-3xl font-bold tracking-tight md:text-4xl">
           {{ t('list.title') }}
