@@ -82,14 +82,15 @@
 /* System preference: apply dark unless the user has explicitly     */
 /* chosen light via the ThemeService.                               */
 /* Palette tuned for eye comfort: bg sits at ~#1c1e22 (not pure     */
-/* black) and ink at ~#e4e4e4 (not pure white), keeping AAA         */
-/* contrast (~11.8:1) without the fatigue of a 14.6:1 pair.         */
+/* black) and ink is warm cream #fff8e7 — the light-theme bg colour */
+/* flipped to text, giving the two themes a symmetric feel without  */
+/* the eyestrain of pure white on near-black.                       */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --color-bg: #1c1e22;
     --color-surface: #262931;
     --color-surface-muted: #30333c;
-    --color-ink: #e4e4e4;
+    --color-ink: #fff8e7;
     --color-ink-soft: #b8b8b8;
     --color-text-muted: #8a8a8a;
   }
@@ -101,7 +102,7 @@
   --color-bg: #1c1e22;
   --color-surface: #262931;
   --color-surface-muted: #30333c;
-  --color-ink: #e4e4e4;
+  --color-ink: #fff8e7;
   --color-ink-soft: #b8b8b8;
   --color-text-muted: #8a8a8a;
 }
