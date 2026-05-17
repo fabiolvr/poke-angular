@@ -89,6 +89,6 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
       arquivo separado `app.routes.prod.ts`. Custo atual: ~4 kB lazy chunk
       nunca baixado. Atacar se o tamanho de build virar problema.
 
-- [ ] **Padrão decorativo (listras/hachuras) em seções-chave** previsto na
-      identidade visual ainda não foi aplicado. Encaixar quando construir a
-      Fase 7 (layout/shell).
+- [x] **Padrão decorativo (listras/hachuras)** — aplicado na Fase 7 como
+      `.brutal-stripes` no header (faixas diagonais a 12% ink, via
+      `color-mix`). Funciona em ambos os temas.
