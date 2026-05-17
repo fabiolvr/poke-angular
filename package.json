@@ -1,7 +1,21 @@
 {
   "name": "poke-angular",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Neobrutalist Pokédex SPA — Angular 21, signals, zoneless, Tailwind v4, runtime i18n (pt-BR/en). Built as a Claude Code experiment.",
   "type": "module",
+  "author": "Fábio de Oliveira <168743215+fabiolvr@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabiolvr/poke-angular.git"
+  },
+  "homepage": "https://github.com/fabiolvr/poke-angular#readme",
+  "bugs": {
+    "url": "https://github.com/fabiolvr/poke-angular/issues"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",

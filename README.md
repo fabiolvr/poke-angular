@@ -19,7 +19,7 @@ para listar, buscar e detalhar Pokémons. Suporta troca de idioma
 
 ## Pré-requisitos
 
-- Node.js ≥ 20.11 (ESM nativo, `Array.prototype.at`, top-level await)
+- Node.js ≥ 20.19 (ver `.nvmrc` para a versão exata usada no desenvolvimento)
 - npm ≥ 10
 
 ```bash
@@ -179,16 +179,21 @@ flowchart TB
 - **Sem store global**: signals + `rxResource` cobrem todos os
   fluxos. Se o app ganhar mutações, `@ngrx/signals` é o caminho de
   migração com menor atrito.
-- **`@defer` + Vitest**: 5 specs do smart `PokemonDetailPage` estão
-  `it.skip` por incompatibilidade ainda não resolvida do TestBed com
-  `@defer` em zoneless. Documentado em `docs/PENDENCIAS.md`.
+- **`@defer` + Vitest**: contornado extraindo o bloco `@defer` para
+  um wrapper (`PokemonEvolutionSection`) — todos os specs do detail
+  smart passam. Histórico em `docs/PENDENCIAS.md`.
 
 ## Testes
 
 ```bash
-npm test -- --watch=false   # 161 passing, 5 skipped (docs/PENDENCIAS.md)
+npm test -- --watch=false   # 40 spec files / 177 specs passing
 npm test -- --coverage      # gera relatório em coverage/
 ```
+
+Inclui um spec de integração via `RouterTestingHarness` cobrindo o
+fluxo listing → detail, e um spec de regressão protegendo o
+bootstrap eager de `NavigationHistoryService` (o que faz o botão
+Voltar do detail acertar de primeira).
 
 Padrão por camada:
 
@@ -233,13 +238,25 @@ detecta no scan estático).
 
 ## Limitações conhecidas
 
-Ver [docs/PENDENCIAS.md](docs/PENDENCIAS.md) — incluindo:
+`docs/PENDENCIAS.md` lista o backlog histórico — todos os itens
+estão fechados. Pendências residuais conhecidas (não bloqueadoras):
 
-- Plurals ICU (deferred até a UI realmente contar itens).
-- 5 specs do PokemonDetailPage marked `.skip` (@defer + Vitest).
-- Pre-commit não roda typecheck (apenas lint-staged).
+- 4 warnings PostCSS `& -> Empty sub-selector` durante `ng build`
+  são baseline interna do Tailwind v4 (não vêm do nosso CSS, não
+  afetam o output final). Reavaliar quando atualizar o Tailwind.
+
+## Como foi construído
+
+Implementação conversacional com [Claude Code](https://claude.com/claude-code).
+Cada fase entrou como commits atômicos Conventional Commits — vide
+`git log --oneline` — e o agente foi orientado a verificar mudanças
+em browser real via Playwright MCP antes de reportar conclusão. A
+CLI ficou responsável por: tokens de design, route table,
+interceptors, camada de repositórios, separação smart/dumb, ADRs e
+suite de testes. As decisões foram ratificadas pelo humano fora do
+loop.
 
 ## Licença
 
-PokéAPI agradecida em footer da SPA. Código sob MIT (ou o que o
-mantenedor escolher).
+MIT — ver [`LICENSE`](./LICENSE). Dados de Pokémon agradecidos à
+[PokéAPI](https://pokeapi.co/) (livre para uso não-comercial).
