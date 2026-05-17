@@ -50,6 +50,10 @@ export interface PokemonSpritesDto {
       readonly front_default: string | null;
       readonly front_shiny?: string | null;
     };
+    readonly home?: {
+      readonly front_default: string | null;
+      readonly front_shiny?: string | null;
+    };
   };
 }
 

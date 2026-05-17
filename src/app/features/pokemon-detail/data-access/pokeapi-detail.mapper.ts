@@ -25,11 +25,22 @@ const extractIdFromUrl = (url: string): number => {
   return match?.[1] ? Number(match[1]) : Number.NaN;
 };
 
-const mapSprites = (dto: PokemonSpritesDto): PokemonSprites => ({
-  thumbnail: dto.front_default,
-  artwork: dto.other?.['official-artwork']?.front_default ?? dto.front_default,
-  shiny: dto.other?.['official-artwork']?.front_shiny ?? dto.front_shiny ?? dto.front_default,
-});
+/**
+ * Cascade through PokéAPI's sprite paths so Mega/Gigantamax/Alolan/etc.
+ * variants render — `front_default` is frequently null on alternate
+ * forms, but Pokémon HOME renders cover almost every variant.
+ */
+const mapSprites = (dto: PokemonSpritesDto): PokemonSprites => {
+  const home = dto.other?.home?.front_default ?? null;
+  const artwork = dto.other?.['official-artwork']?.front_default ?? null;
+  const officialShiny = dto.other?.['official-artwork']?.front_shiny ?? null;
+  const homeShiny = dto.other?.home?.front_shiny ?? null;
+  return {
+    thumbnail: dto.front_default ?? home ?? artwork,
+    artwork: artwork ?? home ?? dto.front_default,
+    shiny: officialShiny ?? homeShiny ?? dto.front_shiny ?? dto.front_default,
+  };
+};
 
 const mapTypes = (slots: PokemonDetailDto['types']): readonly PokemonTypeName[] =>
   slots

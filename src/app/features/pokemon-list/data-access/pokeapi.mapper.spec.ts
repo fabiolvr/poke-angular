@@ -111,6 +111,32 @@ describe('mapPokemon', () => {
     };
     expect(mapPokemon(noArtwork).sprites.artwork).toBe('fallback.png');
   });
+
+  it('cascades thumbnail through front_default → home → official-artwork for forms', () => {
+    // Mega/alternate form: legacy front_default is null but Pokémon HOME
+    // has a rendering. The cascade should pick it up so the card doesn't
+    // render the missing-sprite placeholder.
+    const megaForm: PokemonDto = {
+      ...pikachuDto,
+      sprites: {
+        front_default: null,
+        front_shiny: null,
+        other: {
+          home: { front_default: 'home/charizard-mega-x.png' },
+          'official-artwork': { front_default: 'artwork/charizard-mega-x.png' },
+        },
+      },
+    };
+    expect(mapPokemon(megaForm).sprites.thumbnail).toBe('home/charizard-mega-x.png');
+  });
+
+  it('keeps thumbnail null when every cascade slot is absent', () => {
+    const orphan: PokemonDto = {
+      ...pikachuDto,
+      sprites: { front_default: null, front_shiny: null },
+    };
+    expect(mapPokemon(orphan).sprites.thumbnail).toBeNull();
+  });
 });
 
 describe('mapPokemonSummary', () => {

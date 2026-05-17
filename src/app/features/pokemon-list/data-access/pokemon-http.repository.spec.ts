@@ -45,15 +45,15 @@ describe('PokemonHttpRepository', () => {
         result.value = page;
       });
 
-      const listReq = httpMock.expectOne(`${POKE_API_BASE_URL}pokemon-species?offset=0&limit=2`);
+      const listReq = httpMock.expectOne(`${POKE_API_BASE_URL}pokemon?offset=0&limit=2`);
       expect(listReq.request.method).toBe('GET');
       const listResponse: PokemonListResponseDto = {
-        count: 1025,
+        count: 1360,
         next: 'https://next',
         previous: null,
         results: [
-          { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon-species/1/' },
-          { name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon-species/2/' },
+          { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
+          { name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/' },
         ],
       };
       listReq.flush(listResponse);
@@ -61,7 +61,7 @@ describe('PokemonHttpRepository', () => {
       httpMock.expectOne(`${POKE_API_BASE_URL}pokemon/bulbasaur`).flush(makeDto(1, 'bulbasaur'));
       httpMock.expectOne(`${POKE_API_BASE_URL}pokemon/ivysaur`).flush(makeDto(2, 'ivysaur'));
 
-      expect(result.value?.total).toBe(1025);
+      expect(result.value?.total).toBe(1360);
       expect(result.value?.items.map((i) => i.name)).toEqual(['bulbasaur', 'ivysaur']);
     });
 
@@ -69,9 +69,7 @@ describe('PokemonHttpRepository', () => {
       const result = capture<PokemonPage>();
       repo.listCards(2000, 20).subscribe((page) => (result.value = page));
 
-      const listReq = httpMock.expectOne(
-        `${POKE_API_BASE_URL}pokemon-species?offset=2000&limit=20`,
-      );
+      const listReq = httpMock.expectOne(`${POKE_API_BASE_URL}pokemon?offset=2000&limit=20`);
       listReq.flush({ count: 0, next: null, previous: null, results: [] });
 
       httpMock.verify(); // no further calls allowed

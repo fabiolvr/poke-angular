@@ -30,11 +30,30 @@ export const extractIdFromUrl = (url: string): number => {
   return match?.[1] ? Number(match[1]) : Number.NaN;
 };
 
-const mapSprites = (dto: PokemonSpritesDto): PokemonSprites => ({
-  thumbnail: dto.front_default,
-  artwork: dto.other?.['official-artwork']?.front_default ?? dto.front_default,
-  shiny: dto.front_shiny,
-});
+/**
+ * PokéAPI keeps separate sprite paths with very different coverage. We
+ * cascade through them so alternate forms (Mega/Gigantamax/Alolan/etc.)
+ * that lack the legacy in-game `front_default` still render — Pokémon
+ * HOME renders cover almost every variant.
+ *
+ * - thumbnail (card-sized): front_default → home → official-artwork
+ * - artwork (detail hero):  official-artwork → home → front_default
+ * - shiny (toggle):         official-artwork.shiny → home.shiny → front_shiny
+ *
+ * If every path is null (truly sprite-less fan-added entries), the card
+ * falls back to `/img/missing-sprite.svg` via PokemonCard.
+ */
+const mapSprites = (dto: PokemonSpritesDto): PokemonSprites => {
+  const home = dto.other?.home?.front_default ?? null;
+  const artwork = dto.other?.['official-artwork']?.front_default ?? null;
+  const officialShiny = dto.other?.['official-artwork']?.front_shiny ?? null;
+  const homeShiny = dto.other?.home?.front_shiny ?? null;
+  return {
+    thumbnail: dto.front_default ?? home ?? artwork,
+    artwork: artwork ?? home ?? dto.front_default,
+    shiny: officialShiny ?? homeShiny ?? dto.front_shiny,
+  };
+};
 
 const mapTypes = (slots: PokemonDto['types']): readonly PokemonTypeName[] =>
   slots
