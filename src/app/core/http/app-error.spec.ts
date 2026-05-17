@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
-import { appErrorTranslationKey, toAppError, type AppError } from './app-error';
+import { appErrorOf, appErrorTranslationKey, toAppError, type AppError } from './app-error';
 
 const makeRequest = (url: string): HttpRequest<unknown> => new HttpRequest('GET', url);
 
@@ -60,6 +60,28 @@ describe('toAppError', () => {
   it('falls through to unknown for non-Http errors', () => {
     const err = toAppError(new Error('parse failure'), makeRequest('pokemon/1'));
     expect(err.kind).toBe('unknown');
+  });
+});
+
+describe('appErrorOf', () => {
+  const sample: AppError = { kind: 'not-found', url: 'pokemon/missingno', cause: null };
+
+  it('returns the value when it is already an AppError', () => {
+    expect(appErrorOf(sample)).toBe(sample);
+  });
+
+  it('unwraps an AppError sitting on Error.cause (rxResource wraps non-Errors)', () => {
+    const wrapper = new Error('Resource returned an error');
+    (wrapper as { cause: unknown }).cause = sample;
+    expect(appErrorOf(wrapper)).toBe(sample);
+  });
+
+  it('returns null for unknown shapes', () => {
+    expect(appErrorOf(null)).toBeNull();
+    expect(appErrorOf(undefined)).toBeNull();
+    expect(appErrorOf('boom')).toBeNull();
+    expect(appErrorOf({ kind: 'something-else' })).toBeNull();
+    expect(appErrorOf(new Error('plain error'))).toBeNull();
   });
 });
 

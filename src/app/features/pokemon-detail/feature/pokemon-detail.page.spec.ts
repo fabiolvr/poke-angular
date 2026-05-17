@@ -75,6 +75,9 @@ const setup = async () => {
 };
 
 const flushResource = async (fixture: { detectChanges(): void }): Promise<void> => {
+  // Two microtask boundaries: rxResource flushes the loader observable
+  // on the first, Transloco's translate signal updates on the second.
+  await Promise.resolve();
   await Promise.resolve();
   TestBed.tick();
   fixture.detectChanges();
@@ -86,19 +89,13 @@ describe('PokemonDetailPage', () => {
     Object.defineProperty(navigator, 'language', { configurable: true, get: () => 'pt-BR' });
   });
 
-  // FIXME: rendering specs blocked on @defer + Vitest interaction in
-  // Angular 21 — TestBed.createComponent reports "unresolved metadata"
-  // even with `await TestBed.configureTestingModule({...}).compileComponents()`
-  // and `DeferBlockBehavior.Manual`. Tracked in docs/PENDENCIAS.md.
-  // The component is exercised manually + via build/typecheck and all
-  // of its dumb collaborators + the repository have their own specs.
-  it.skip('renders the skeleton while detail is pending', async () => {
+  it('renders the skeleton while detail is pending', async () => {
     const { root } = await setup();
     expect(root.querySelector('app-pokemon-detail-skeleton')).not.toBeNull();
     expect(root.querySelector('article')).toBeNull();
   });
 
-  it.skip('renders the localized name, dex number, types and stats when detail loads', async () => {
+  it('renders the localized name, dex number, types and stats when detail loads', async () => {
     const { fixture, root, detailSubject } = await setup();
     detailSubject.next(makeDetail('pikachu'));
     await flushResource(fixture);
@@ -110,7 +107,7 @@ describe('PokemonDetailPage', () => {
     expect(root.querySelector('app-pokemon-stats-panel')).not.toBeNull();
   });
 
-  it.skip('toggles the shiny sprite on press and reverts on a second press', async () => {
+  it('toggles the shiny sprite on press and reverts on a second press', async () => {
     const { fixture, root, detailSubject } = await setup();
     detailSubject.next(makeDetail('pikachu'));
     await flushResource(fixture);
@@ -130,7 +127,7 @@ describe('PokemonDetailPage', () => {
     expect(root.querySelector('img')!.getAttribute('src')).toContain('artwork.png');
   });
 
-  it.skip('hides the shiny toggle when species has no shiny sprite', async () => {
+  it('hides the shiny toggle when species has no shiny sprite', async () => {
     const { fixture, root, detailSubject } = await setup();
     detailSubject.next(makeDetail('pikachu', null));
     await flushResource(fixture);
@@ -141,7 +138,7 @@ describe('PokemonDetailPage', () => {
     expect(toggle).toBeUndefined();
   });
 
-  it.skip('shows the error region with a retry button when the resource fails', async () => {
+  it('shows the error region with a retry button when the resource fails', async () => {
     const { fixture, root, detailSubject } = await setup();
     detailSubject.error({ kind: 'not-found', url: 'pokemon/missingno', cause: null });
     await flushResource(fixture);

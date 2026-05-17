@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { appErrorTranslationKey, type AppError } from '@core/http';
+import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { debounceTime } from 'rxjs';
 import { BrutalButton, BrutalCard, BrutalInput } from '@shared/ui';
@@ -155,7 +155,7 @@ export default class PokemonSearchPage {
   });
 
   protected readonly indexError = computed(() => {
-    const err = this.indexResource.error() as AppError | undefined;
+    const err = appErrorOf(this.indexResource.error());
     return err ? appErrorTranslationKey(err) : null;
   });
 

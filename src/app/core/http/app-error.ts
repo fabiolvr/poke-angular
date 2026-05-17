@@ -45,6 +45,27 @@ export const toAppError = (err: unknown, req: HttpRequest<unknown>): AppError =>
   return { kind: 'unknown', cause: err };
 };
 
+const APP_ERROR_KINDS = new Set(['network', 'not-found', 'rate-limit', 'server', 'unknown']);
+
+const isAppErrorShape = (value: unknown): value is AppError => {
+  if (typeof value !== 'object' || value === null || !('kind' in value)) return false;
+  const { kind } = value;
+  return typeof kind === 'string' && APP_ERROR_KINDS.has(kind);
+};
+
+/**
+ * Unwraps `resource.error()` back to an `AppError`. Angular's resource API
+ * wraps non-Error values in a `ResourceWrappedError` and stashes the
+ * original under `.cause`, so signal consumers cannot use the value
+ * directly. This helper handles both the wrapped and unwrapped cases and
+ * narrows to `AppError | null` so callers can branch cleanly.
+ */
+export const appErrorOf = (value: unknown): AppError | null => {
+  if (isAppErrorShape(value)) return value;
+  if (value instanceof Error && isAppErrorShape(value.cause)) return value.cause;
+  return null;
+};
+
 /**
  * i18n key for an AppError. UI components map to these via Transloco. Keeping
  * the mapping here keeps templates free of inline ternaries.

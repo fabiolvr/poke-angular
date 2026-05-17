@@ -53,16 +53,17 @@ Todos escritos na Fase 8 (`docs/adr/0002` a `0009`):
 
 ## Testes — smart spec do PokemonDetailPage (Fase 5)
 
-- [ ] **`PokemonDetailPage.spec` está com 5 `it.skip`** — `TestBed.createComponent`
-      do componente smart falha com "Component '\_PokemonDetailPage' has unresolved
-      metadata" mesmo após
-      `await TestBed.configureTestingModule({...}).compileComponents()` e
-      `deferBlockBehavior: DeferBlockBehavior.Manual`. Causa provável:
-      interação entre `@defer` e o runner Vitest do `@angular/build:unit-test`.
-      Mitigação atual: as 5 colaboradoras (mapper, repository, dumb skeleton,
-      stats panel, stat bar, evolution chain) têm specs próprias; o smart
-      component é validado por typecheck + build + run manual. Investigar
-      quando atualizar Angular ou descobrir um padrão de teste compatível.
+- [x] **`PokemonDetailPage.spec` destravado** — o problema era duplo:
+      (1) `@defer` no template do smart bloqueava `TestBed.createComponent`,
+      resolvido extraindo o bloco para um wrapper dedicado
+      (`PokemonEvolutionSection`); (2) `rxResource` embrulha objetos não-Error
+      em `ResourceWrappedError` (Angular runtime), então `resource.error()`
+      devolvia o wrapper e o `errorKey` computed via `as AppError` mentia
+      para o TS e gerava `undefined` em produção também. Adicionado
+      `appErrorOf(unknown): AppError | null` em `core/http/app-error.ts`
+      que desembrulha `.cause` quando é um Error. Todos os 4 sites que
+      lêem `resource.error()` agora usam o helper. 5 specs do detail page
+      passam, suíte total 171.
 
 ## i18n / Transloco
 

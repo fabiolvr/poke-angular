@@ -1,4 +1,4 @@
-export { appErrorTranslationKey, toAppError } from './app-error';
+export { appErrorOf, appErrorTranslationKey, toAppError } from './app-error';
 export type { AppError } from './app-error';
 export { baseUrlInterceptor, POKE_API_BASE_URL } from './base-url.interceptor';
 export { cacheInterceptor } from './cache.interceptor';

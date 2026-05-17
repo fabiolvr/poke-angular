@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { appErrorTranslationKey, type AppError } from '@core/http';
+import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { LanguageService } from '@core/i18n';
 import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
@@ -20,7 +20,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { BrutalBadge, BrutalButton, BrutalCard } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
-import { PokemonEvolutionChain } from '../ui/pokemon-evolution-chain.component';
+import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
 import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
 
 const FALLBACK_SPRITE = '/img/missing-sprite.svg';
@@ -55,7 +55,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
     BrutalCard,
     NgOptimizedImage,
     PokemonDetailSkeleton,
-    PokemonEvolutionChain,
+    PokemonEvolutionSection,
     PokemonStatsPanel,
     TranslocoDirective,
   ],
@@ -171,23 +171,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
               </app-brutal-card>
 
               @if (d.species.evolutionChainUrl) {
-                @defer (on viewport) {
-                  <app-brutal-card padding="md">
-                    <app-pokemon-evolution-chain [chainUrl]="d.species.evolutionChainUrl" />
-                  </app-brutal-card>
-                } @placeholder {
-                  <app-brutal-card padding="md">
-                    <h2 class="font-display text-xl font-bold">
-                      {{ t('detail.evolutionChain') }}
-                    </h2>
-                  </app-brutal-card>
-                } @loading (minimum 100ms) {
-                  <app-brutal-card padding="md">
-                    <h2 class="font-display text-xl font-bold">
-                      {{ t('detail.evolutionChain') }}
-                    </h2>
-                  </app-brutal-card>
-                }
+                <app-pokemon-evolution-section [chainUrl]="d.species.evolutionChainUrl" />
               }
             </article>
           }
@@ -213,7 +197,7 @@ export default class PokemonDetailPage {
   protected readonly detail = computed(() => this.resource.value() ?? null);
 
   protected readonly errorKey = computed(() => {
-    const err = this.resource.error() as AppError | undefined;
+    const err = appErrorOf(this.resource.error());
     return err ? appErrorTranslationKey(err) : null;
   });
 

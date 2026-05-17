@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { appErrorTranslationKey, type AppError } from '@core/http';
+import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { brutalButtonClasses, BrutalButton, BrutalCard } from '@shared/ui';
 import { POKEMON_REPOSITORY } from '../data-access';
@@ -134,7 +134,7 @@ export default class PokemonListPage {
   );
 
   protected readonly errorKey = computed(() => {
-    const err = this.resource.error() as AppError | undefined;
+    const err = appErrorOf(this.resource.error());
     return err ? appErrorTranslationKey(err) : null;
   });
 

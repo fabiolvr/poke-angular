@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { flattenEvolutionChain, type EvolutionNode } from '@core/domain';
-import { appErrorTranslationKey, type AppError } from '@core/http';
+import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalCard, BrutalSkeleton } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
@@ -100,7 +100,7 @@ export class PokemonEvolutionChain {
   });
 
   protected readonly errorKey = computed(() => {
-    const err = this.resource.error() as AppError | undefined;
+    const err = appErrorOf(this.resource.error());
     return err ? appErrorTranslationKey(err) : null;
   });
 
