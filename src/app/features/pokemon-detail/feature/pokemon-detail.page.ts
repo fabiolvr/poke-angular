@@ -18,7 +18,7 @@ import { LanguageService, TranslationService } from '@core/i18n';
 import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { BrutalBadge, BrutalButton, BrutalCard } from '@shared/ui';
+import { BrutalBadge, BrutalButton, BrutalCard, BrutalSkeleton } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
 import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
@@ -54,6 +54,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
     BrutalBadge,
     BrutalButton,
     BrutalCard,
+    BrutalSkeleton,
     NgOptimizedImage,
     PokemonDetailSkeleton,
     PokemonEvolutionSection,
@@ -116,7 +117,9 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                   >
                     {{ localizedName() }}
                   </h1>
-                  @if (displayedGenus()) {
+                  @if (genusTranslating()) {
+                    <app-brutal-skeleton shape="text" width="14ch" ariaLabel="Carregando" />
+                  } @else if (displayedGenus()) {
                     <p class="text-ink-soft">{{ displayedGenus() }}</p>
                   }
                   <div class="flex flex-wrap gap-2" [attr.aria-label]="t('detail.types')">
@@ -158,12 +161,19 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                 </div>
               </app-brutal-card>
 
-              @if (displayedFlavorText()) {
+              @if (displayedFlavorText() || flavorTranslating()) {
                 <app-brutal-card padding="md" aria-labelledby="flavor-heading">
                   <h2 id="flavor-heading" class="text-ink-soft text-xs uppercase">
                     {{ t('detail.flavorText') }}
                   </h2>
-                  <p class="mt-1">{{ displayedFlavorText() }}</p>
+                  @if (flavorTranslating()) {
+                    <div class="mt-1 flex flex-col gap-2" aria-live="polite">
+                      <app-brutal-skeleton shape="text" width="100%" ariaLabel="Carregando" />
+                      <app-brutal-skeleton shape="text" width="78%" ariaLabel="" />
+                    </div>
+                  } @else {
+                    <p class="mt-1">{{ displayedFlavorText() }}</p>
+                  }
                 </app-brutal-card>
               }
 
@@ -258,6 +268,14 @@ export default class PokemonDetailPage {
   protected readonly machineTranslatedGenus = signal<string>('');
 
   /**
+   * True while a machine translation is in flight. Synchronous cache hits
+   * never flip these to true visibly — the observable emits inside the
+   * effect run and Angular batches the set(true)/set(false) pair.
+   */
+  protected readonly flavorTranslating = signal<boolean>(false);
+  protected readonly genusTranslating = signal<boolean>(false);
+
+  /**
    * True when the user wants pt-BR but PokéAPI doesn't have a native
    * pt/pt-br entry for the given map — i.e. the rendered text would
    * otherwise be English even though the app is in Portuguese.
@@ -320,23 +338,37 @@ export default class PokemonDetailPage {
       if (!d || this.lang.current() !== 'pt-BR') {
         this.machineTranslatedFlavor.set('');
         this.machineTranslatedGenus.set('');
+        this.flavorTranslating.set(false);
+        this.genusTranslating.set(false);
         return;
       }
       const flavorEn = d.species.localizedFlavorTexts.get('en');
       if (flavorEn && this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
+        this.flavorTranslating.set(true);
         this.translator.translate(flavorEn, 'en', 'pt-br').subscribe({
-          next: (t) => this.machineTranslatedFlavor.set(t),
+          next: (t) => {
+            this.machineTranslatedFlavor.set(t);
+            this.flavorTranslating.set(false);
+          },
+          error: () => this.flavorTranslating.set(false),
         });
       } else {
         this.machineTranslatedFlavor.set('');
+        this.flavorTranslating.set(false);
       }
       const genusEn = d.species.localizedGenera.get('en');
       if (genusEn && this.needsMachineTranslation(d.species.localizedGenera)) {
+        this.genusTranslating.set(true);
         this.translator.translate(genusEn, 'en', 'pt-br').subscribe({
-          next: (t) => this.machineTranslatedGenus.set(t),
+          next: (t) => {
+            this.machineTranslatedGenus.set(t);
+            this.genusTranslating.set(false);
+          },
+          error: () => this.genusTranslating.set(false),
         });
       } else {
         this.machineTranslatedGenus.set('');
+        this.genusTranslating.set(false);
       }
     });
   }

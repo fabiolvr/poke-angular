@@ -68,8 +68,14 @@ const detail = (id: number, name: string): PokemonDetail => ({
       ['en', 'Pikachu'],
       ['pt-br', 'Pikachu'],
     ]),
-    localizedGenera: new Map([['en', 'Mouse Pokémon']]),
-    localizedFlavorTexts: new Map([['en', 'A cute electric mouse.']]),
+    localizedGenera: new Map([
+      ['en', 'Mouse Pokémon'],
+      ['pt-br', 'Mouse Pokémon'],
+    ]),
+    localizedFlavorTexts: new Map([
+      ['en', 'A cute electric mouse.'],
+      ['pt-br', 'A cute electric mouse.'],
+    ]),
     evolutionChainUrl: null,
     evolvesFromSpecies: null,
     isLegendary: false,
