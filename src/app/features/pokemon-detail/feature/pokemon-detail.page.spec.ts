@@ -37,8 +37,14 @@ const makeDetail = (name: string, shiny: string | null = 'shiny.png'): PokemonDe
       ['en', 'Pikachu'],
       ['pt-br', 'Pikachu'],
     ]),
-    genus: 'Mouse Pokémon',
-    flavorText: 'A cute electric mouse.',
+    localizedGenera: new Map([
+      ['en', 'Mouse Pokémon'],
+      ['pt-br', 'Pokémon Camundongo'],
+    ]),
+    localizedFlavorTexts: new Map([
+      ['en', 'A cute electric mouse.'],
+      ['pt-br', 'Um camundongo elétrico fofo.'],
+    ]),
     evolutionChainUrl: 'https://pokeapi.co/api/v2/evolution-chain/10/',
     evolvesFromSpecies: 'pichu',
     isLegendary: false,
@@ -103,7 +109,9 @@ describe('PokemonDetailPage', () => {
     expect(root.querySelector('article')).not.toBeNull();
     expect(root.querySelector('h1')?.textContent?.trim()).toBe('Pikachu');
     expect(root.textContent).toContain('#0025');
-    expect(root.textContent).toContain('Mouse Pokémon');
+    // navigator.language is pinned to pt-BR in the beforeEach, so the
+    // genus resolves to the Portuguese entry before falling back to en.
+    expect(root.textContent).toContain('Pokémon Camundongo');
     expect(root.querySelector('app-pokemon-stats-panel')).not.toBeNull();
   });
 

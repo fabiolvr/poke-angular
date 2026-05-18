@@ -76,36 +76,42 @@ const mapPokemon = (dto: PokemonDetailDto): Pokemon => ({
 });
 
 /**
- * Picks the first non-empty English (or default-game) flavor text from the
- * species' multi-language entries. Strips form-feed characters PokéAPI
- * embeds for legacy game-screen line wrapping.
+ * Builds a `lang → flavor_text` map preserving the first entry per language
+ * (older game versions tend to show up first in PokéAPI's payload, which
+ * matches the original `candidates[0]` semantics). Strips the form-feed and
+ * line-break characters PokéAPI keeps for legacy GameBoy line wrapping.
  */
-const pickFlavorText = (
+const buildFlavorTextMap = (
   entries: PokemonSpeciesDto['flavor_text_entries'],
-  languageCode: string,
-): string | null => {
-  const candidates = entries.filter((e) => e.language.name === languageCode);
-  const first = candidates[0] ?? entries.find((e) => e.language.name === 'en') ?? entries[0];
-  return first?.flavor_text.replace(/[\f\n\r]+/g, ' ').trim() ?? null;
+): ReadonlyMap<string, string> => {
+  const out = new Map<string, string>();
+  for (const entry of entries) {
+    if (out.has(entry.language.name)) continue;
+    const cleaned = entry.flavor_text.replace(/[\f\n\r]+/g, ' ').trim();
+    if (cleaned) out.set(entry.language.name, cleaned);
+  }
+  return out;
 };
 
-const pickGenus = (entries: PokemonSpeciesDto['genera'], languageCode: string): string | null => {
-  const match = entries.find((g) => g.language.name === languageCode);
-  const fallback = entries.find((g) => g.language.name === 'en');
-  return match?.genus ?? fallback?.genus ?? null;
+const buildGeneraMap = (entries: PokemonSpeciesDto['genera']): ReadonlyMap<string, string> => {
+  const out = new Map<string, string>();
+  for (const entry of entries) {
+    if (entry.genus) out.set(entry.language.name, entry.genus);
+  }
+  return out;
 };
 
 export const mapSpecies = (dto: PokemonSpeciesDto): PokemonSpecies => {
-  const localized = new Map<string, string>();
+  const localizedNames = new Map<string, string>();
   for (const entry of dto.names) {
-    localized.set(entry.language.name, entry.name);
+    localizedNames.set(entry.language.name, entry.name);
   }
   return {
     id: dto.id,
     defaultName: dto.name,
-    localizedNames: localized,
-    genus: pickGenus(dto.genera, 'en'),
-    flavorText: pickFlavorText(dto.flavor_text_entries, 'en'),
+    localizedNames,
+    localizedGenera: buildGeneraMap(dto.genera),
+    localizedFlavorTexts: buildFlavorTextMap(dto.flavor_text_entries),
     evolutionChainUrl: dto.evolution_chain?.url ?? null,
     evolvesFromSpecies: dto.evolves_from_species?.name ?? null,
     isLegendary: dto.is_legendary,

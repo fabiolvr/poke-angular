@@ -57,9 +57,17 @@ describe('mapSpecies', () => {
 
   it('strips form-feed and CR/LF characters from flavor text', () => {
     const species = mapSpecies(pikachuSpeciesDto);
-    expect(species.flavorText).not.toContain('\f');
-    expect(species.flavorText).not.toContain('\n');
-    expect(species.flavorText).toContain('Pokémon gather');
+    const en = species.localizedFlavorTexts.get('en');
+    expect(en).not.toContain('\f');
+    expect(en).not.toContain('\n');
+    expect(en).toContain('Pokémon gather');
+  });
+
+  it('exposes genus and flavor text by every PokéAPI language entry', () => {
+    const species = mapSpecies(pikachuSpeciesDto);
+    expect(species.localizedGenera.get('en')).toBe('Mouse Pokémon');
+    expect(species.localizedGenera.get('pt-br')).toBe('Pokémon Camundongo');
+    expect(species.localizedFlavorTexts.has('en')).toBe(true);
   });
 
   it('extracts the evolution chain url and the previous species', () => {

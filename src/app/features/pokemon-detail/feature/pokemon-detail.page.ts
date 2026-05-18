@@ -115,8 +115,8 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                   >
                     {{ localizedName() }}
                   </h1>
-                  @if (d.species.genus) {
-                    <p class="text-ink-soft">{{ d.species.genus }}</p>
+                  @if (localizedGenus()) {
+                    <p class="text-ink-soft">{{ localizedGenus() }}</p>
                   }
                   <div class="flex flex-wrap gap-2" [attr.aria-label]="t('detail.types')">
                     @for (type of d.types; track type) {
@@ -157,12 +157,12 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                 </div>
               </app-brutal-card>
 
-              @if (d.species.flavorText) {
+              @if (localizedFlavorText()) {
                 <app-brutal-card padding="md" aria-labelledby="flavor-heading">
                   <h2 id="flavor-heading" class="text-ink-soft text-xs uppercase">
                     {{ t('detail.flavorText') }}
                   </h2>
-                  <p class="mt-1">{{ d.species.flavorText }}</p>
+                  <p class="mt-1">{{ localizedFlavorText() }}</p>
                 </app-brutal-card>
               }
 
@@ -217,6 +217,28 @@ export default class PokemonDetailPage {
       if (candidate) return candidate;
     }
     return d.species.defaultName || d.name;
+  });
+
+  protected readonly localizedGenus = computed(() => {
+    const d = this.detail();
+    if (!d) return '';
+    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
+    for (const code of langCodes) {
+      const candidate = d.species.localizedGenera.get(code);
+      if (candidate) return candidate;
+    }
+    return '';
+  });
+
+  protected readonly localizedFlavorText = computed(() => {
+    const d = this.detail();
+    if (!d) return '';
+    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
+    for (const code of langCodes) {
+      const candidate = d.species.localizedFlavorTexts.get(code);
+      if (candidate) return candidate;
+    }
+    return '';
   });
 
   protected readonly spriteSrc = computed(() => {
