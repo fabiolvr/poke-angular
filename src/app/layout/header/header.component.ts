@@ -40,26 +40,7 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
           routerLink="/"
           class="font-display text-ink inline-flex items-center gap-2 text-2xl font-bold tracking-tight no-underline"
         >
-          <!--
-            Brutalist Pokéball: stroke uses currentColor so it follows the
-            active ink token (cream on dark, near-black on light).
-          -->
-          <svg
-            viewBox="0 0 32 32"
-            width="28"
-            height="28"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="16" cy="16" r="13" />
-            <path d="M3 16h10" />
-            <path d="M19 16h10" />
-            <circle cx="16" cy="16" r="3" fill="currentColor" />
-          </svg>
+          <img src="poke_ball_icon.svg" alt="" width="32" height="32" class="size-8" />
           {{ 'app.title' | transloco }}
         </a>
 
