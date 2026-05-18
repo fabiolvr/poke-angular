@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   type ElementRef,
   inject,
   input,
@@ -13,7 +14,7 @@ import {
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
-import { LanguageService } from '@core/i18n';
+import { LanguageService, TranslationService } from '@core/i18n';
 import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -115,8 +116,8 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                   >
                     {{ localizedName() }}
                   </h1>
-                  @if (localizedGenus()) {
-                    <p class="text-ink-soft">{{ localizedGenus() }}</p>
+                  @if (displayedGenus()) {
+                    <p class="text-ink-soft">{{ displayedGenus() }}</p>
                   }
                   <div class="flex flex-wrap gap-2" [attr.aria-label]="t('detail.types')">
                     @for (type of d.types; track type) {
@@ -157,12 +158,12 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                 </div>
               </app-brutal-card>
 
-              @if (localizedFlavorText()) {
+              @if (displayedFlavorText()) {
                 <app-brutal-card padding="md" aria-labelledby="flavor-heading">
                   <h2 id="flavor-heading" class="text-ink-soft text-xs uppercase">
                     {{ t('detail.flavorText') }}
                   </h2>
-                  <p class="mt-1">{{ localizedFlavorText() }}</p>
+                  <p class="mt-1">{{ displayedFlavorText() }}</p>
                 </app-brutal-card>
               }
 
@@ -185,6 +186,7 @@ export default class PokemonDetailPage {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly history = inject(NavigationHistoryService);
+  private readonly translator = inject(TranslationService);
   protected readonly lang = inject(LanguageService);
 
   readonly name = input.required<string>();
@@ -194,7 +196,13 @@ export default class PokemonDetailPage {
     stream: ({ params }) => this.repo.getDetail(params.name),
   });
 
-  protected readonly detail = computed(() => this.resource.value() ?? null);
+  protected readonly detail = computed(() => {
+    // `resource.value()` throws when the loader observable errored. Reading
+    // `error()` first makes this computed safe for arbitrary callers (the
+    // template gates on the error case separately).
+    if (this.resource.error()) return null;
+    return this.resource.value() ?? null;
+  });
 
   protected readonly errorKey = computed(() => {
     const err = appErrorOf(this.resource.error());
@@ -241,6 +249,44 @@ export default class PokemonDetailPage {
     return '';
   });
 
+  /**
+   * Machine-translated fallbacks (MyMemory) populated on demand when the
+   * user is in pt-BR and the PokéAPI payload only has English. Empty
+   * string means "no translation yet / not needed".
+   */
+  protected readonly machineTranslatedFlavor = signal<string>('');
+  protected readonly machineTranslatedGenus = signal<string>('');
+
+  /**
+   * True when the user wants pt-BR but PokéAPI doesn't have a native
+   * pt/pt-br entry for the given map — i.e. the rendered text would
+   * otherwise be English even though the app is in Portuguese.
+   */
+  private needsMachineTranslation(map: ReadonlyMap<string, string>): boolean {
+    if (this.lang.current() !== 'pt-BR') return false;
+    return !map.has('pt-br') && !map.has('pt');
+  }
+
+  protected readonly displayedFlavorText = computed(() => {
+    const d = this.detail();
+    const native = this.localizedFlavorText();
+    if (!d || !native) return native;
+    if (this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
+      return this.machineTranslatedFlavor() || native;
+    }
+    return native;
+  });
+
+  protected readonly displayedGenus = computed(() => {
+    const d = this.detail();
+    const native = this.localizedGenus();
+    if (!d || !native) return native;
+    if (this.needsMachineTranslation(d.species.localizedGenera)) {
+      return this.machineTranslatedGenus() || native;
+    }
+    return native;
+  });
+
   protected readonly spriteSrc = computed(() => {
     const d = this.detail();
     if (!d) return FALLBACK_SPRITE;
@@ -263,6 +309,35 @@ export default class PokemonDetailPage {
   constructor() {
     afterNextRender(() => {
       this.titleEl()?.nativeElement.focus();
+    });
+
+    // Machine-translate flavor + genus on demand when the user picks
+    // pt-BR and the PokéAPI payload has no native pt/pt-br entry.
+    // Resets the cached translation when the detail changes (new Pokémon)
+    // or when the user flips back to English.
+    effect(() => {
+      const d = this.detail();
+      if (!d || this.lang.current() !== 'pt-BR') {
+        this.machineTranslatedFlavor.set('');
+        this.machineTranslatedGenus.set('');
+        return;
+      }
+      const flavorEn = d.species.localizedFlavorTexts.get('en');
+      if (flavorEn && this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
+        this.translator.translate(flavorEn, 'en', 'pt-br').subscribe({
+          next: (t) => this.machineTranslatedFlavor.set(t),
+        });
+      } else {
+        this.machineTranslatedFlavor.set('');
+      }
+      const genusEn = d.species.localizedGenera.get('en');
+      if (genusEn && this.needsMachineTranslation(d.species.localizedGenera)) {
+        this.translator.translate(genusEn, 'en', 'pt-br').subscribe({
+          next: (t) => this.machineTranslatedGenus.set(t),
+        });
+      } else {
+        this.machineTranslatedGenus.set('');
+      }
     });
   }
 

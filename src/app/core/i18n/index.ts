@@ -4,3 +4,4 @@ export type { SupportedLang } from './supported-langs';
 export { provideTranslocoConfig } from './transloco.config';
 export { TranslocoHttpLoader } from './transloco.loader';
 export { provideTranslocoForTesting } from './transloco.testing';
+export { TranslationService } from './translation.service';
