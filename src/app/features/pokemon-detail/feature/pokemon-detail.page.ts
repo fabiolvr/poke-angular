@@ -118,7 +118,12 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                     {{ localizedName() }}
                   </h1>
                   @if (genusTranslating()) {
-                    <app-brutal-skeleton shape="text" width="14ch" ariaLabel="Carregando" />
+                    <app-brutal-skeleton
+                      class="block"
+                      shape="text"
+                      width="14ch"
+                      ariaLabel="Carregando"
+                    />
                   } @else if (displayedGenus()) {
                     <p class="text-ink-soft">{{ displayedGenus() }}</p>
                   }
