@@ -105,6 +105,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Reserve the vertical scrollbar gutter on every route so the
+       centered max-w containers don't shift when pages of different
+       heights swap (listing has 20 cards → scrolls; search empty
+       state doesn't → header would otherwise slide ~15px right). */
+    scrollbar-gutter: stable;
   }
 
   body {
