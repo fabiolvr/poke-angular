@@ -1,13 +1,27 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  type ElementRef,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
-import { TranslocoDirective } from '@jsverse/transloco';
-import { brutalButtonClasses, BrutalButton, BrutalCard } from '@shared/ui';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { BrutalButton, BrutalCard } from '@shared/ui';
 import { POKEMON_REPOSITORY } from '../data-access';
 import { PokemonListGrid } from '../ui/pokemon-list-grid.component';
 import { PokemonListSkeleton } from '../ui/pokemon-list.skeleton';
+import { PokemonListPaginator } from '../ui/pokemon-list-paginator.component';
 import {
+  pageItemRange,
   pageToOffset,
   parsePageParam,
   POKEMON_LIST_PAGE_SIZE,
@@ -43,66 +57,62 @@ import {
     BrutalButton,
     BrutalCard,
     PokemonListGrid,
+    PokemonListPaginator,
     PokemonListSkeleton,
-    RouterLink,
     TranslocoDirective,
   ],
   template: `
     <main *transloco="let t" class="mx-auto flex max-w-6xl flex-col gap-8 p-4 sm:p-6">
+      <p class="sr-only" role="status">{{ liveAnnouncement() }}</p>
       <header class="flex items-end justify-between gap-4">
         <h1 class="font-display text-3xl font-bold tracking-tight md:text-4xl">
           {{ t('list.title') }}
         </h1>
       </header>
 
-      @switch (true) {
-        @case (resource.isLoading()) {
-          <app-pokemon-list-skeleton />
+      @if (resource.isLoading()) {
+        <app-pokemon-list-skeleton [showPaginatorPlaceholder]="lastKnownTotal() === 0" />
+        @if (lastKnownTotal() > 0) {
+          <app-pokemon-list-paginator
+            [currentPage]="currentPage()"
+            [totalPages]="displayTotalPages()"
+            [totalItems]="lastKnownTotal()"
+            [disabled]="true"
+          />
         }
-        @case (errorKey() !== null) {
-          <app-brutal-card role="alert" aria-live="assertive" extraClass="space-y-4">
-            <p class="font-display text-lg font-bold">{{ t(errorKey()!) }}</p>
-            <app-brutal-button (pressed)="retry()">
-              {{ t('common.retry') }}
-            </app-brutal-button>
-          </app-brutal-card>
+      } @else if (errorKey() !== null) {
+        <app-brutal-card role="alert" aria-live="assertive" extraClass="space-y-4">
+          <p class="font-display text-lg font-bold">{{ t(errorKey()!) }}</p>
+          <app-brutal-button (pressed)="retry()">
+            {{ t('common.retry') }}
+          </app-brutal-button>
+        </app-brutal-card>
+        @if (lastKnownTotal() > 0) {
+          <app-pokemon-list-paginator
+            [currentPage]="currentPage()"
+            [totalPages]="displayTotalPages()"
+            [totalItems]="lastKnownTotal()"
+            [disabled]="true"
+          />
         }
-        @case (isEmpty()) {
-          <app-brutal-card role="status" aria-live="polite">
-            <p>{{ t('list.empty') }}</p>
-          </app-brutal-card>
-        }
-        @default {
+      } @else if (isEmpty()) {
+        <app-brutal-card role="status" aria-live="polite">
+          <p>{{ t('list.empty') }}</p>
+        </app-brutal-card>
+      } @else {
+        <section
+          #resultsRegion
+          tabindex="-1"
+          class="focus:outline-none"
+          [attr.aria-label]="t('list.title')"
+        >
           <app-pokemon-list-grid [items]="items()" />
-          <nav
-            [attr.aria-label]="t('list.paginationLabel')"
-            class="flex flex-col items-center justify-between gap-3 sm:flex-row"
-          >
-            <a
-              [routerLink]="['./']"
-              [queryParams]="{ page: prevPage() }"
-              queryParamsHandling="merge"
-              [class]="prevLinkClasses()"
-              [attr.aria-disabled]="!hasPrev() ? 'true' : null"
-              [attr.tabindex]="!hasPrev() ? -1 : null"
-            >
-              {{ t('list.prev') }}
-            </a>
-            <span aria-live="polite" class="font-mono text-sm">
-              {{ t('list.pageOf', { page: currentPage(), total: totalPagesCount() }) }}
-            </span>
-            <a
-              [routerLink]="['./']"
-              [queryParams]="{ page: nextPage() }"
-              queryParamsHandling="merge"
-              [class]="nextLinkClasses()"
-              [attr.aria-disabled]="!hasNext() ? 'true' : null"
-              [attr.tabindex]="!hasNext() ? -1 : null"
-            >
-              {{ t('list.next') }}
-            </a>
-          </nav>
-        }
+        </section>
+        <app-pokemon-list-paginator
+          [currentPage]="currentPage()"
+          [totalPages]="totalPagesCount()"
+          [totalItems]="total()"
+        />
       }
     </main>
   `,
@@ -110,6 +120,8 @@ import {
 export default class PokemonListPage {
   private readonly repo = inject(POKEMON_REPOSITORY);
   private readonly router = inject(Router);
+  private readonly doc = inject(DOCUMENT);
+  private readonly translocoService = inject(TranslocoService);
 
   readonly page = input<string>('1');
 
@@ -128,11 +140,6 @@ export default class PokemonListPage {
   protected readonly hasNext = computed(() => this.resource.value()?.hasNext ?? false);
   protected readonly hasPrev = computed(() => this.currentPage() > 1);
 
-  protected readonly prevPage = computed(() => Math.max(this.currentPage() - 1, 1));
-  protected readonly nextPage = computed(() =>
-    Math.min(this.currentPage() + 1, this.totalPagesCount()),
-  );
-
   protected readonly errorKey = computed(() => {
     const err = appErrorOf(this.resource.error());
     return err ? appErrorTranslationKey(err) : null;
@@ -144,13 +151,15 @@ export default class PokemonListPage {
     return this.total() === 0;
   });
 
-  protected readonly prevLinkClasses = computed(() =>
-    brutalButtonClasses('ghost', 'md', this.hasPrev() ? '' : 'pointer-events-none opacity-50'),
-  );
+  protected readonly lastKnownTotal = signal(0);
+  protected readonly displayTotalPages = computed(() => totalPages(this.lastKnownTotal()));
+  protected readonly liveAnnouncement = signal('');
 
-  protected readonly nextLinkClasses = computed(() =>
-    brutalButtonClasses('primary', 'md', this.hasNext() ? '' : 'pointer-events-none opacity-50'),
-  );
+  protected readonly resultsRegion = viewChild<ElementRef<HTMLElement>>('resultsRegion');
+
+  protected readonly pageSize = POKEMON_LIST_PAGE_SIZE;
+
+  private hasNavigated = false;
 
   constructor() {
     // Clamp out-of-range deep links (e.g. /?page=99999 when total < that
@@ -169,6 +178,55 @@ export default class PokemonListPage {
           replaceUrl: true,
         });
       }
+    });
+
+    // Track last successfully loaded total so the paginator can stay visible
+    // and meaningful during subsequent loading/error states.
+    effect(() => {
+      const t = this.total();
+      if (t > 0) this.lastKnownTotal.set(t);
+    });
+
+    // After each successful page navigation (not the first load), scroll the
+    // results region into view, move focus there, and announce the new page
+    // context to screen readers.
+    //
+    // Tracks `resultsRegion()` so the effect re-runs when the section enters
+    // the DOM (after Angular renders the @else branch) — this avoids the race
+    // condition where the effect fired before viewChild was available.
+    effect(() => {
+      const isLoading = this.resource.isLoading();
+      const hasError = !!this.resource.error();
+      const page = this.currentPage();
+      const el = this.resultsRegion()?.nativeElement;
+
+      if (isLoading || hasError || !this.resource.value() || !el) return;
+
+      if (!this.hasNavigated) {
+        this.hasNavigated = true;
+        return;
+      }
+
+      const win = this.doc.defaultView;
+      const reducedMotion = win?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false;
+
+      el.focus({ preventScroll: true });
+      el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+
+      untracked(() => {
+        const total = this.total();
+        const totalPagesCount = this.totalPagesCount();
+        const range = pageItemRange(page, POKEMON_LIST_PAGE_SIZE, total);
+        this.liveAnnouncement.set(
+          this.translocoService.translate('list.pageStatus', {
+            page,
+            totalPages: totalPagesCount,
+            from: range.from,
+            to: range.to,
+            total,
+          }),
+        );
+      });
     });
   }
 

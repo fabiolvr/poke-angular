@@ -35,10 +35,18 @@ import { BrutalCard, BrutalSkeleton } from '@shared/ui';
         </li>
       }
     </ul>
+    @if (showPaginatorPlaceholder()) {
+      <div
+        class="border-ink bg-surface h-14 rounded-[var(--radius-brutal)] border-[var(--border-brutal-width)] opacity-60"
+        role="presentation"
+        aria-hidden="true"
+      ></div>
+    }
   `,
 })
 export class PokemonListSkeleton {
   readonly count = input(20);
+  readonly showPaginatorPlaceholder = input(true);
 
   protected readonly placeholders = computed(() =>
     Array.from({ length: this.count() }, (_, i) => i),

@@ -42,6 +42,12 @@
     "prev": "Previous",
     "next": "Next",
     "pageOf": "Page {{ page }} of {{ total }}",
+    "firstPage": "First page",
+    "lastPage": "Last page",
+    "goToPage": "Go to page {{ page }}",
+    "currentPage": "Current page, {{ page }}",
+    "range": "Showing {{ from }}–{{ to }} of {{ total }}",
+    "pageStatus": "Page {{ page }} of {{ totalPages }}, showing {{ from }}–{{ to }} of {{ total }}",
     "paginationLabel": "Pagination",
     "cardAriaLabel": "{{ name }}, {{ number }}"
   },
