@@ -39,7 +39,7 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
   template: `
     <header class="brutal-stripes border-ink border-b-[var(--border-brutal-width)]">
       <div
-        class="bg-bg/95 supports-[backdrop-filter]:bg-bg/80 mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 px-4 py-3 backdrop-blur sm:px-6"
+        class="bg-bg/95 supports-[backdrop-filter]:bg-bg/80 mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-6 px-4 py-2.5 backdrop-blur sm:gap-y-2 sm:px-6 sm:py-3"
       >
         <a
           routerLink="/"
