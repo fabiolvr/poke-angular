@@ -20,7 +20,12 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
 /**
  * Brutalist app header.
  *
- * Layout: logo (left) | nav (Listagem/Busca) | theme + language (right).
+ * Desktop (≥ sm): single row — logo | nav (Listagem/Busca) | theme + language.
+ * Mobile (< sm):  two rows — logo + theme/language on row 1; nav centered on row 2.
+ * The 3-col grid reflows via col-start/row-start so DOM order (and therefore
+ * tab order: logo → nav → controls) stays stable across breakpoints, and the
+ * theme/language children are instanced once instead of duplicated.
+ *
  * The whole bar sits inside a brutal-surface bottom border so it sticks
  * to the page like a banner rather than floating.
  *
@@ -34,17 +39,20 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
   template: `
     <header class="brutal-stripes border-ink border-b-[var(--border-brutal-width)]">
       <div
-        class="bg-bg/95 supports-[backdrop-filter]:bg-bg/80 mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3 backdrop-blur"
+        class="bg-bg/95 supports-[backdrop-filter]:bg-bg/80 mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 px-4 py-3 backdrop-blur sm:px-6"
       >
         <a
           routerLink="/"
-          class="font-display text-ink inline-flex items-center gap-2 text-2xl font-bold tracking-tight no-underline"
+          class="font-display text-ink col-start-1 row-start-1 inline-flex items-center gap-2 text-xl font-bold tracking-tight no-underline sm:text-2xl"
         >
-          <img src="poke_ball_icon.svg" alt="" width="32" height="32" class="size-8" />
+          <img src="poke_ball_icon.svg" alt="" width="32" height="32" class="size-7 sm:size-8" />
           {{ 'app.title' | transloco }}
         </a>
 
-        <nav [attr.aria-label]="'app.title' | transloco" class="flex items-center gap-2">
+        <nav
+          [attr.aria-label]="'app.title' | transloco"
+          class="col-span-3 col-start-1 row-start-2 flex items-center justify-center gap-2 sm:col-span-1 sm:col-start-2 sm:row-start-1"
+        >
           <a
             routerLink="/"
             routerLinkActive="brutal-surface bg-primary text-ink"
@@ -62,7 +70,7 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
           </a>
         </nav>
 
-        <div class="flex items-center gap-2">
+        <div class="col-start-3 row-start-1 flex items-center justify-end gap-2">
           <app-theme-toggle />
           <app-language-switcher />
         </div>
