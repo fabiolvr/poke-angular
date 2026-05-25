@@ -177,8 +177,8 @@ export class PokemonListPaginator {
 
   constructor() {
     const win = isPlatformBrowser(this.platformId) ? this.doc.defaultView : null;
-    if (win) {
-      const mq = win.matchMedia('(max-width: 639px)');
+    const mq = win?.matchMedia?.('(max-width: 639px)');
+    if (mq) {
       this.isSmallScreen.set(mq.matches);
       mq.addEventListener('change', (e) => this.isSmallScreen.set(e.matches));
     }

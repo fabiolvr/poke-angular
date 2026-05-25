@@ -183,6 +183,7 @@ export default class PokemonListPage {
     // Track last successfully loaded total so the paginator can stay visible
     // and meaningful during subsequent loading/error states.
     effect(() => {
+      if (this.resource.error()) return;
       const t = this.total();
       if (t > 0) this.lastKnownTotal.set(t);
     });
