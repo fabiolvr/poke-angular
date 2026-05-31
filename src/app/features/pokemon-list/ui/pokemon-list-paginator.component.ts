@@ -13,6 +13,16 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { brutalButtonClasses } from '@shared/ui';
 import { buildPageItems, pageItemRange, POKEMON_LIST_PAGE_SIZE } from '../util/page-param';
 
+/** Pages shown either side of the current one. Mobile collapses to none. */
+const DESKTOP_PAGE_WINDOW = 2;
+const MOBILE_PAGE_WINDOW = 0;
+/** Below this width the paginator drops the surrounding page window. */
+const MOBILE_BREAKPOINT = '(max-width: 639px)';
+/** Shared touch-target sizing for every page/nav button. */
+const PAGE_BTN_SIZE = 'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11';
+/** Appended when a button is non-interactive. */
+const PAGE_BTN_DISABLED = 'pointer-events-none opacity-50';
+
 @Component({
   selector: 'app-pokemon-list-paginator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -128,7 +138,9 @@ export class PokemonListPaginator {
 
   private readonly isSmallScreen = signal(false);
 
-  protected readonly windowSize = computed(() => (this.isSmallScreen() ? 0 : 2));
+  protected readonly windowSize = computed(() =>
+    this.isSmallScreen() ? MOBILE_PAGE_WINDOW : DESKTOP_PAGE_WINDOW,
+  );
   protected readonly pageItems = computed(() =>
     buildPageItems(this.currentPage(), this.totalPages(), this.windowSize()),
   );
@@ -144,40 +156,28 @@ export class PokemonListPaginator {
   protected readonly nextPage = computed(() => Math.min(this.totalPages(), this.currentPage() + 1));
 
   // Precomputed class strings — pure, not signals
-  protected readonly activePageClass = brutalButtonClasses(
-    'primary',
-    'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11',
-  );
-  protected readonly inactivePageClass = brutalButtonClasses(
-    'ghost',
-    'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11',
-  );
+  protected readonly activePageClass = brutalButtonClasses('primary', 'sm', PAGE_BTN_SIZE);
+  protected readonly inactivePageClass = brutalButtonClasses('ghost', 'sm', PAGE_BTN_SIZE);
   protected readonly activePageDisabledClass = brutalButtonClasses(
     'primary',
     'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11 pointer-events-none opacity-50',
+    `${PAGE_BTN_SIZE} ${PAGE_BTN_DISABLED}`,
   );
   protected readonly inactivePageDisabledClass = brutalButtonClasses(
     'ghost',
     'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11 pointer-events-none opacity-50',
+    `${PAGE_BTN_SIZE} ${PAGE_BTN_DISABLED}`,
   );
-  protected readonly navBtnClass = brutalButtonClasses(
-    'ghost',
-    'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11',
-  );
+  protected readonly navBtnClass = brutalButtonClasses('ghost', 'sm', PAGE_BTN_SIZE);
   protected readonly navBtnDisabledClass = brutalButtonClasses(
     'ghost',
     'sm',
-    'min-w-10 min-h-10 sm:min-w-11 sm:min-h-11 pointer-events-none opacity-50',
+    `${PAGE_BTN_SIZE} ${PAGE_BTN_DISABLED}`,
   );
 
   constructor() {
     const win = isPlatformBrowser(this.platformId) ? this.doc.defaultView : null;
-    const mq = win?.matchMedia?.('(max-width: 639px)');
+    const mq = win?.matchMedia?.(MOBILE_BREAKPOINT);
     if (mq) {
       this.isSmallScreen.set(mq.matches);
       mq.addEventListener('change', (e) => this.isSmallScreen.set(e.matches));
