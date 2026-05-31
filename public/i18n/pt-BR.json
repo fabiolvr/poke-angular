@@ -39,10 +39,8 @@
   "list": {
     "title": "Pokédex",
     "empty": "Nenhum Pokémon para mostrar.",
-    "count": "{count, plural, one {1 Pokémon} other {# Pokémons}}",
     "prev": "Anterior",
     "next": "Próxima",
-    "pageOf": "Página {{ page }} de {{ total }}",
     "firstPage": "Primeira página",
     "lastPage": "Última página",
     "goToPage": "Ir para a página {{ page }}",
