@@ -5,6 +5,7 @@ import {
   inject,
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import {
   provideRouter,
@@ -20,6 +21,10 @@ import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Explicitly declare zoneless change detection. Angular 21 defaults to
+    // it (there's no zone.js), but declaring it documents the choice and
+    // guards against a future default change.
+    provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       routes,
