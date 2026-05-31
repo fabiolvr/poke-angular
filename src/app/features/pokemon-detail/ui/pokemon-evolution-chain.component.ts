@@ -40,7 +40,12 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
       </h2>
 
       @if (resource.isLoading()) {
-        <div class="flex flex-wrap items-center gap-3" aria-busy="true">
+        <div
+          class="flex flex-wrap items-center gap-3"
+          role="status"
+          aria-busy="true"
+          [attr.aria-label]="'common.loading' | transloco"
+        >
           <app-brutal-skeleton shape="block" width="140px" height="160px" />
           <app-brutal-skeleton shape="block" width="140px" height="160px" />
           <app-brutal-skeleton shape="block" width="140px" height="160px" />

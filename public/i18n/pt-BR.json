@@ -11,6 +11,7 @@
   },
   "language": {
     "label": "Idioma",
+    "select": "Selecionar idioma",
     "pt-BR": "Português",
     "en": "Inglês"
   },
@@ -78,6 +79,8 @@
     "evolutionChain": "Linha evolutiva",
     "evolutionChainEmpty": "Este Pokémon não evolui.",
     "flavorText": "Descrição",
+    "mythical": "Mítico",
+    "legendary": "Lendário",
     "stat": {
       "hp": "HP",
       "attack": "Ataque",

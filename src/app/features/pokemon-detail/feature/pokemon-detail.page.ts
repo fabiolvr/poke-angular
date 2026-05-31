@@ -101,7 +101,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                     </app-brutal-badge>
                     @if (d.species.isLegendary || d.species.isMythical) {
                       <app-brutal-badge variant="accent" size="sm">
-                        {{ d.species.isMythical ? 'mythical' : 'legendary' }}
+                        {{ d.species.isMythical ? t('detail.mythical') : t('detail.legendary') }}
                       </app-brutal-badge>
                     }
                   </div>
@@ -117,7 +117,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                       class="block"
                       shape="text"
                       width="14ch"
-                      ariaLabel="Carregando"
+                      [ariaLabel]="t('common.loading')"
                     />
                   } @else if (displayedGenus()) {
                     <p class="text-ink-soft">{{ displayedGenus() }}</p>
@@ -168,8 +168,12 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                   </h2>
                   @if (flavorTranslating()) {
                     <div class="mt-1 flex flex-col gap-2" aria-live="polite">
-                      <app-brutal-skeleton shape="text" width="100%" ariaLabel="Carregando" />
-                      <app-brutal-skeleton shape="text" width="78%" ariaLabel="" />
+                      <app-brutal-skeleton
+                        shape="text"
+                        width="100%"
+                        [ariaLabel]="t('common.loading')"
+                      />
+                      <app-brutal-skeleton shape="text" width="78%" />
                     </div>
                   } @else {
                     <p class="mt-1">{{ displayedFlavorText() }}</p>

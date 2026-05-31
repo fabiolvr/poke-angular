@@ -1,7 +1,5 @@
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { LanguageService, provideTranslocoConfig } from '@core/i18n';
+import { LanguageService, provideTranslocoForTesting } from '@core/i18n';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LanguageSwitcher } from './language-switcher';
 
@@ -16,7 +14,7 @@ describe('LanguageSwitcher', () => {
     // depends on whatever jsdom (or a previous test) left on navigator.language.
     Object.defineProperty(navigator, 'language', { configurable: true, get: () => 'pt-BR' });
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslocoConfig()],
+      providers: [provideTranslocoForTesting()],
     });
   });
 

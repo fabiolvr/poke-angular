@@ -20,7 +20,7 @@ const SHAPE_CLASSES: Record<BrutalSkeletonShape, string> = {
       [style.height]="height()"
       role="status"
       aria-busy="true"
-      [attr.aria-label]="ariaLabel()"
+      [attr.aria-label]="ariaLabel() || null"
     ></span>
   `,
 })
@@ -30,7 +30,12 @@ export class BrutalSkeleton {
   readonly width = input<string>('100%');
   /** Any CSS length. Defaults differ per shape (text=1lh, others=auto). */
   readonly height = input<string | null>(null);
-  readonly ariaLabel = input<string>('Carregando');
+  /**
+   * Empty by default: skeletons are decorative, so the surrounding
+   * `role="status"` region announces loading. Set a (translated) label only
+   * for a standalone skeleton that isn't already inside a labelled region.
+   */
+  readonly ariaLabel = input<string>('');
   readonly extraClass = input<string>('');
 
   protected readonly classes = computed(() =>

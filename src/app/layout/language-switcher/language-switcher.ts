@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { LanguageService, SUPPORTED_LANGS, type SupportedLang } from '@core/i18n';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { BrutalButton } from '@shared/ui';
 
 /**
@@ -14,9 +15,14 @@ import { BrutalButton } from '@shared/ui';
 @Component({
   selector: 'app-language-switcher',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BrutalButton],
+  imports: [BrutalButton, TranslocoDirective],
   template: `
-    <div role="group" [attr.aria-label]="ariaLabel()" class="inline-flex gap-2">
+    <div
+      *transloco="let t"
+      role="group"
+      [attr.aria-label]="t('language.select')"
+      class="inline-flex gap-2"
+    >
       @for (lang of languages; track lang) {
         <app-brutal-button
           size="sm"
@@ -34,9 +40,6 @@ export class LanguageSwitcher {
 
   protected readonly languages = SUPPORTED_LANGS;
   protected readonly current = this.languageService.current;
-  protected readonly ariaLabel = computed(() =>
-    this.current() === 'pt-BR' ? 'Selecionar idioma' : 'Select language',
-  );
 
   protected select(lang: SupportedLang): void {
     this.languageService.setLanguage(lang);
