@@ -8,13 +8,15 @@ import {
   type ElementRef,
   inject,
   input,
+  type Signal,
   signal,
   viewChild,
+  type WritableSignal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
-import { LanguageService, TranslationService } from '@core/i18n';
+import { LanguageService, pickLocalized, TranslationService } from '@core/i18n';
 import { FALLBACK_SPRITE, formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -23,11 +25,6 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
 import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
 import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
-
-const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
-  'pt-BR': ['pt-br', 'pt-BR', 'pt', 'en'],
-  en: ['en'],
-};
 
 /**
  * Smart page at `/pokemon/:name`.
@@ -232,34 +229,21 @@ export default class PokemonDetailPage {
   protected readonly localizedName = computed(() => {
     const d = this.detail();
     if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedNames.get(code);
-      if (candidate) return candidate;
-    }
-    return d.species.defaultName || d.name;
+    return pickLocalized(
+      d.species.localizedNames,
+      this.lang.current(),
+      d.species.defaultName || d.name,
+    );
   });
 
   protected readonly localizedGenus = computed(() => {
     const d = this.detail();
-    if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedGenera.get(code);
-      if (candidate) return candidate;
-    }
-    return '';
+    return d ? pickLocalized(d.species.localizedGenera, this.lang.current()) : '';
   });
 
   protected readonly localizedFlavorText = computed(() => {
     const d = this.detail();
-    if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedFlavorTexts.get(code);
-      if (candidate) return candidate;
-    }
-    return '';
+    return d ? pickLocalized(d.species.localizedFlavorTexts, this.lang.current()) : '';
   });
 
   /**
@@ -288,25 +272,35 @@ export default class PokemonDetailPage {
     return !map.has('pt-br') && !map.has('pt');
   }
 
-  protected readonly displayedFlavorText = computed(() => {
-    const d = this.detail();
-    const native = this.localizedFlavorText();
-    if (!d || !native) return native;
-    if (this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
-      return this.machineTranslatedFlavor() || native;
-    }
-    return native;
-  });
+  /**
+   * Shows the machine-translated text when the user is in pt-BR and the
+   * payload only has English, otherwise the native localized value.
+   * Falls back to native if the machine translation isn't ready yet.
+   */
+  private displayWithMachineFallback(
+    native: string,
+    source: ReadonlyMap<string, string> | undefined,
+    machineTranslation: Signal<string>,
+  ): string {
+    if (!native || !source || !this.needsMachineTranslation(source)) return native;
+    return machineTranslation() || native;
+  }
 
-  protected readonly displayedGenus = computed(() => {
-    const d = this.detail();
-    const native = this.localizedGenus();
-    if (!d || !native) return native;
-    if (this.needsMachineTranslation(d.species.localizedGenera)) {
-      return this.machineTranslatedGenus() || native;
-    }
-    return native;
-  });
+  protected readonly displayedFlavorText = computed(() =>
+    this.displayWithMachineFallback(
+      this.localizedFlavorText(),
+      this.detail()?.species.localizedFlavorTexts,
+      this.machineTranslatedFlavor,
+    ),
+  );
+
+  protected readonly displayedGenus = computed(() =>
+    this.displayWithMachineFallback(
+      this.localizedGenus(),
+      this.detail()?.species.localizedGenera,
+      this.machineTranslatedGenus,
+    ),
+  );
 
   protected readonly spriteSrc = computed(() => {
     const d = this.detail();
@@ -345,35 +339,44 @@ export default class PokemonDetailPage {
         this.genusTranslating.set(false);
         return;
       }
-      const flavorEn = d.species.localizedFlavorTexts.get('en');
-      if (flavorEn && this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
-        this.flavorTranslating.set(true);
-        this.translator.translate(flavorEn, 'en', 'pt-br').subscribe({
-          next: (t) => {
-            this.machineTranslatedFlavor.set(t);
-            this.flavorTranslating.set(false);
-          },
-          error: () => this.flavorTranslating.set(false),
-        });
-      } else {
-        this.machineTranslatedFlavor.set('');
-        this.flavorTranslating.set(false);
-      }
-      const genusEn = d.species.localizedGenera.get('en');
-      if (genusEn && this.needsMachineTranslation(d.species.localizedGenera)) {
-        this.genusTranslating.set(true);
-        this.translator.translate(genusEn, 'en', 'pt-br').subscribe({
-          next: (t) => {
-            this.machineTranslatedGenus.set(t);
-            this.genusTranslating.set(false);
-          },
-          error: () => this.genusTranslating.set(false),
-        });
-      } else {
-        this.machineTranslatedGenus.set('');
-        this.genusTranslating.set(false);
-      }
+      this.translateField(
+        d.species.localizedFlavorTexts,
+        this.machineTranslatedFlavor,
+        this.flavorTranslating,
+      );
+      this.translateField(
+        d.species.localizedGenera,
+        this.machineTranslatedGenus,
+        this.genusTranslating,
+      );
     });
+  }
+
+  /**
+   * Machine-translates the English entry of `source` into pt-BR and writes
+   * it to `target`, toggling `loading` around the request. Clears both when
+   * no machine translation is needed. The observable emits synchronously on
+   * a cache hit, so the set(true)/set(false) pair batches inside the effect.
+   */
+  private translateField(
+    source: ReadonlyMap<string, string>,
+    target: WritableSignal<string>,
+    loading: WritableSignal<boolean>,
+  ): void {
+    const english = source.get('en');
+    if (english && this.needsMachineTranslation(source)) {
+      loading.set(true);
+      this.translator.translate(english, 'en', 'pt-br').subscribe({
+        next: (translated) => {
+          target.set(translated);
+          loading.set(false);
+        },
+        error: () => loading.set(false),
+      });
+    } else {
+      target.set('');
+      loading.set(false);
+    }
   }
 
   protected toggleShiny(): void {
