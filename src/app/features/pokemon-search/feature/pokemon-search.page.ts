@@ -222,6 +222,15 @@ export default class PokemonSearchPage {
    * `onSpriteError` handler swaps to the local placeholder for the
    * rare form ids that don't have artwork uploaded yet (fan-added
    * Mega/Gigantamax stubs past id 10300+).
+   *
+   * NgOptimizedImage is intentionally NOT used here (it is used by the
+   * list card, detail hero and evolution chain). Those know sprite
+   * availability at the data layer and never reassign their source;
+   * this list builds URLs from raw ids and must recover from 404s at
+   * render time. NgOptimizedImage treats `ngSrc` as immutable after
+   * init — it throws in dev/tests when the source is reassigned — so it
+   * is incompatible with the runtime error→placeholder fallback, and it
+   * exposes no error-fallback API of its own.
    */
   protected spriteUrl(id: number): string {
     if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
