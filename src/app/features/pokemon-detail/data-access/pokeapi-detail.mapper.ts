@@ -11,6 +11,7 @@ import {
   type PokemonStat,
   type PokemonTypeName,
 } from '@core/domain';
+import { extractIdFromUrl } from '@core/pokeapi';
 import type {
   EvolutionChainDto,
   EvolutionLinkDto,
@@ -18,12 +19,6 @@ import type {
   PokemonSpeciesDto,
   PokemonSpritesDto,
 } from './pokeapi-detail.dto';
-
-const ID_PATTERN = /\/(\d+)\/?$/;
-const extractIdFromUrl = (url: string): number => {
-  const match = ID_PATTERN.exec(url);
-  return match?.[1] ? Number(match[1]) : Number.NaN;
-};
 
 /**
  * Cascade through PokéAPI's sprite paths so Mega/Gigantamax/Alolan/etc.
