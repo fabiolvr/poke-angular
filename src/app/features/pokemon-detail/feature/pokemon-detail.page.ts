@@ -15,7 +15,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { LanguageService, TranslationService } from '@core/i18n';
-import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
+import { FALLBACK_SPRITE, formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { BrutalBadge, BrutalButton, BrutalCard, BrutalSkeleton } from '@shared/ui';
@@ -23,8 +23,6 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
 import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
 import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
-
-const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
   'pt-BR': ['pt-br', 'pt-BR', 'pt', 'en'],

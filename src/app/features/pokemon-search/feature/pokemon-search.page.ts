@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { FALLBACK_SPRITE, formatPokedexNumber, pokemonArtworkUrl } from '@core/format';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { debounceTime } from 'rxjs';
@@ -20,9 +21,6 @@ import { HighlightedText } from '../ui/highlighted-text.component';
 
 const MAX_RESULTS = 50;
 const DEBOUNCE_MS = 300;
-const FALLBACK_SPRITE = 'img/missing-sprite.svg';
-
-const formatDex = (id: number): string => `#${id.toString().padStart(4, '0')}`;
 
 /**
  * Search page at `/search`.
@@ -204,7 +202,7 @@ export default class PokemonSearchPage {
   });
 
   protected readonly MAX_RESULTS = MAX_RESULTS;
-  protected readonly formatDex = formatDex;
+  protected readonly formatDex = formatPokedexNumber;
 
   protected optionId(index: number): string {
     return `search-option-${index}`;
@@ -216,12 +214,10 @@ export default class PokemonSearchPage {
   }
 
   /**
-   * Sprite URL derived directly from the pokémon id (same path the
-   * evolution chain and detail hero use). Plain <img> + native
-   * `loading="lazy"` lets the browser skip rows off-screen; the
-   * `onSpriteError` handler swaps to the local placeholder for the
-   * rare form ids that don't have artwork uploaded yet (fan-added
-   * Mega/Gigantamax stubs past id 10300+).
+   * Result-list sprites use a plain <img> with `loading="lazy"` and an
+   * `onSpriteError` swap to the local placeholder — for the rare form
+   * ids that don't have artwork uploaded yet (fan-added Mega/Gigantamax
+   * stubs past id 10300+).
    *
    * NgOptimizedImage is intentionally NOT used here (it is used by the
    * list card, detail hero and evolution chain). Those know sprite
@@ -232,10 +228,7 @@ export default class PokemonSearchPage {
    * is incompatible with the runtime error→placeholder fallback, and it
    * exposes no error-fallback API of its own.
    */
-  protected spriteUrl(id: number): string {
-    if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  }
+  protected readonly spriteUrl = pokemonArtworkUrl;
 
   protected onSpriteError(event: Event): void {
     const img = event.target as HTMLImageElement | null;
