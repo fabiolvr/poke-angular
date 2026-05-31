@@ -163,3 +163,20 @@ Princípio de ordenação: **rede de segurança → bugs isolados → extraçõe
 
 1. **Fase 5 — mappers:** _meio-termo_ — centralizar só os helpers puros (`extractIdFromUrl`, `mapSprites`, `mapTypes/Stats/Abilities`) em `@core/pokeapi`; manter DTOs e `mapPokemon*`/`mapSpecies` por feature.
 2. **Fase 6 — renomeação de arquivos (C14):** _pular_ — registrada como dívida de baixa prioridade.
+
+---
+
+## Status de execução — CONCLUÍDO ✅
+
+Todas as fases 0–6 implementadas no branch `refactor/clean-code-phases` (11 commits pequenos e revisáveis). Gate final verde: `lint` ✅ · `typecheck` ✅ · **210 testes / 45 arquivos** ✅ · cobertura **93,7% stmts / 90,7% branch** (gate 80%) ✅ · `build` ✅. Verificado em runtime via Playwright (lista, detalhe e busca, pt-BR **e** en, tema escuro): sprites/tipos/stats corretos, badge Lendário/Legendary localizado, troca de idioma reativa, paginação reativa sob zoneless explícito, **0 erros de console**.
+
+### Desvios conscientes do plano
+
+- **A2 (`NgOptimizedImage` na busca):** _exceção documentada_ em vez de conversão. Os sprites da lista de busca derivam a URL do id e precisam recuperar de 404 em runtime (`(error)→placeholder`); `NgOptimizedImage` trata `ngSrc` como imutável (lança em dev/testes ao reatribuir) e não expõe API de fallback. Card/detalhe/evolução — que conhecem a disponibilidade do sprite na camada de dados — usam `NgOptimizedImage`.
+- **A5 (`.subscribe()` manual no detalhe):** _avaliado e mantido_. Extraído para `translateField()` (Fase 3), mas o padrão `.subscribe` é o correto aqui — efeito colateral que escreve em múltiplos signals com loading/error, dentro de um `effect` que reseta estado; o observable completa (sem vazamento). Converter para `toSignal`/`rxResource` perderia o batching de cache-hit síncrono.
+- **C16 (`let nextId` global):** _mantido_ (era opcional). O contador de módulo é determinístico por execução e idiomático; `crypto.randomUUID()` não é claramente melhor e adiciona risco em contextos não-browser. Sem mudança.
+- **A3/A4 (`text-text-mutedd`):** corrigido para `text-ink-soft` (não `text-muted`) — o token usado no resto do detalhe e que passa WCAG AA em ambos os temas (~8,9:1 claro / ~7,3:1 escuro); `--color-text-muted` ficaria ~4,2:1 no escuro.
+
+### Observação fora de escopo (pré-existente, não tocada)
+
+- Build emite `5 rules skipped — Empty sub-selector` (Tailwind v4 + lightningcss) e `NG02956` (preconnect para o sprite `priority` cross-origin do detalhe). Ambos pré-existentes e cosméticos; não estavam na auditoria. Candidatos a um item futuro se incomodarem.
