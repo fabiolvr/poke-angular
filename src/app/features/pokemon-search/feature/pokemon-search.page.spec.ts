@@ -106,7 +106,7 @@ describe('PokemonSearchPage', () => {
 
     await type(fixture, root, 'zzzz');
 
-    expect(root.textContent).toContain('Nada para');
+    expect(root.textContent).toContain('Nenhum Pokémon corresponde');
     expect(root.querySelector('ul[role="listbox"]')).toBeNull();
   });
 
