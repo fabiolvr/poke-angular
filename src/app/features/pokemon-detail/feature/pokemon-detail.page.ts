@@ -75,7 +75,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
           </app-brutal-card>
         }
         @default {
-          @if (detail(); as d) {
+          @if (detail(); as pokemon) {
             <article class="flex flex-col gap-6">
               <app-brutal-card padding="lg" extraClass="grid gap-6 md:grid-cols-[260px_1fr]">
                 <div class="flex flex-col items-center gap-3">
@@ -87,7 +87,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                     priority
                     class="size-60"
                   />
-                  @if (d.sprites.shiny) {
+                  @if (pokemon.sprites.shiny) {
                     <app-brutal-button variant="secondary" size="sm" (pressed)="toggleShiny()">
                       {{ shiny() ? t('detail.normalToggle') : t('detail.shinyToggle') }}
                     </app-brutal-button>
@@ -99,9 +99,11 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                     <app-brutal-badge variant="primary">
                       <span class="font-mono">{{ dexNumber() }}</span>
                     </app-brutal-badge>
-                    @if (d.species.isLegendary || d.species.isMythical) {
+                    @if (pokemon.species.isLegendary || pokemon.species.isMythical) {
                       <app-brutal-badge variant="accent" size="sm">
-                        {{ d.species.isMythical ? t('detail.mythical') : t('detail.legendary') }}
+                        {{
+                          pokemon.species.isMythical ? t('detail.mythical') : t('detail.legendary')
+                        }}
                       </app-brutal-badge>
                     }
                   </div>
@@ -123,7 +125,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                     <p class="text-ink-soft">{{ displayedGenus() }}</p>
                   }
                   <div class="flex flex-wrap gap-2" [attr.aria-label]="t('detail.types')">
-                    @for (type of d.types; track type) {
+                    @for (type of pokemon.types; track type) {
                       <app-brutal-badge variant="pokemon-type" [pokemonType]="type">
                         {{ type }}
                       </app-brutal-badge>
@@ -144,7 +146,7 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
                       {{ t('detail.abilities') }}
                     </h2>
                     <ul class="flex flex-wrap gap-2 pt-1">
-                      @for (ability of d.abilities; track ability.name) {
+                      @for (ability of pokemon.abilities; track ability.name) {
                         <li>
                           <app-brutal-badge size="sm" variant="neutral">
                             <span class="capitalize">{{ ability.name }}</span>
@@ -182,11 +184,11 @@ import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
               }
 
               <app-brutal-card padding="md">
-                <app-pokemon-stats-panel [stats]="d.stats" />
+                <app-pokemon-stats-panel [stats]="pokemon.stats" />
               </app-brutal-card>
 
-              @if (d.species.evolutionChainUrl) {
-                <app-pokemon-evolution-section [chainUrl]="d.species.evolutionChainUrl" />
+              @if (pokemon.species.evolutionChainUrl) {
+                <app-pokemon-evolution-section [chainUrl]="pokemon.species.evolutionChainUrl" />
               }
             </article>
           }
@@ -226,28 +228,28 @@ export default class PokemonDetailPage {
   protected readonly shiny = signal(false);
 
   protected readonly dexNumber = computed(() => {
-    const d = this.detail();
-    return d ? formatPokedexNumber(d.id) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatPokedexNumber(pokemon.id) : '';
   });
 
   protected readonly localizedName = computed(() => {
-    const d = this.detail();
-    if (!d) return '';
+    const pokemon = this.detail();
+    if (!pokemon) return '';
     return pickLocalized(
-      d.species.localizedNames,
+      pokemon.species.localizedNames,
       this.lang.current(),
-      d.species.defaultName || d.name,
+      pokemon.species.defaultName || pokemon.name,
     );
   });
 
   protected readonly localizedGenus = computed(() => {
-    const d = this.detail();
-    return d ? pickLocalized(d.species.localizedGenera, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? pickLocalized(pokemon.species.localizedGenera, this.lang.current()) : '';
   });
 
   protected readonly localizedFlavorText = computed(() => {
-    const d = this.detail();
-    return d ? pickLocalized(d.species.localizedFlavorTexts, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? pickLocalized(pokemon.species.localizedFlavorTexts, this.lang.current()) : '';
   });
 
   /**
@@ -307,20 +309,20 @@ export default class PokemonDetailPage {
   );
 
   protected readonly spriteSrc = computed(() => {
-    const d = this.detail();
-    if (!d) return FALLBACK_SPRITE;
-    const url = this.shiny() ? d.sprites.shiny : d.sprites.artwork;
-    return url ?? d.sprites.thumbnail ?? FALLBACK_SPRITE;
+    const pokemon = this.detail();
+    if (!pokemon) return FALLBACK_SPRITE;
+    const url = this.shiny() ? pokemon.sprites.shiny : pokemon.sprites.artwork;
+    return url ?? pokemon.sprites.thumbnail ?? FALLBACK_SPRITE;
   });
 
   protected readonly formattedHeight = computed(() => {
-    const d = this.detail();
-    return d ? formatHeight(d.heightDecimetres, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatHeight(pokemon.heightDecimetres, this.lang.current()) : '';
   });
 
   protected readonly formattedWeight = computed(() => {
-    const d = this.detail();
-    return d ? formatWeight(d.weightHectograms, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatWeight(pokemon.weightHectograms, this.lang.current()) : '';
   });
 
   private readonly titleEl = viewChild<ElementRef<HTMLElement>>('titleEl');
@@ -335,8 +337,8 @@ export default class PokemonDetailPage {
     // Resets the cached translation when the detail changes (new Pokémon)
     // or when the user flips back to English.
     effect(() => {
-      const d = this.detail();
-      if (!d || this.lang.current() !== 'pt-BR') {
+      const pokemon = this.detail();
+      if (!pokemon || this.lang.current() !== 'pt-BR') {
         this.machineTranslatedFlavor.set('');
         this.machineTranslatedGenus.set('');
         this.flavorTranslating.set(false);
@@ -344,12 +346,12 @@ export default class PokemonDetailPage {
         return;
       }
       this.translateField(
-        d.species.localizedFlavorTexts,
+        pokemon.species.localizedFlavorTexts,
         this.machineTranslatedFlavor,
         this.flavorTranslating,
       );
       this.translateField(
-        d.species.localizedGenera,
+        pokemon.species.localizedGenera,
         this.machineTranslatedGenus,
         this.genusTranslating,
       );
