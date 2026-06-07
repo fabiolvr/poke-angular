@@ -17,9 +17,9 @@ complexos ou colaboração em tempo real. As "fontes de verdade" são:
 - **Preferências locais** (tema, idioma) — duas chaves em
   `localStorage`.
 
-Angular 21 oferece um modelo de reatividade nativo (`signal`,
+Angular 22 oferece um modelo de reatividade nativo (`signal`,
 `computed`, `effect`, `linkedSignal`, `resource`/`rxResource`) com
-zero boilerplate.
+zero boilerplate, além de **Signal Forms** estáveis (`@angular/forms/signals`).
 
 ## Decisão
 
@@ -29,8 +29,10 @@ Usar **Angular signals** como mecanismo único de estado.
 - Estado assíncrono: `rxResource` de `@angular/core/rxjs-interop` ou
   `httpResource`.
 - Estado compartilhado (tema, idioma, histórico de navegação):
-  serviços `@Injectable({ providedIn: 'root' })` expondo signals,
-  injetados via `inject(...)`.
+  serviços `@Service()` expondo signals, injetados via `inject(...)`.
+- Formulários (validação de campos): **Signal Forms** via `form()` +
+  `[formField]` — estável no Angular 22, sem boilerplate de
+  `FormControl`/`FormGroup`.
 
 Sem store global. Sem actions/reducers/effects. Cada feature consome
 seus dados via repository → resource e expõe signals locais para o

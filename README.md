@@ -1,4 +1,4 @@
-# Pokédex (Angular 21)
+# Pokédex (Angular 22)
 
 SPA neobrutalista que consome a [PokéAPI](https://pokeapi.co/api/v2/)
 para listar, buscar e detalhar Pokémons. Suporta troca de idioma
@@ -8,10 +8,11 @@ para listar, buscar e detalhar Pokémons. Suporta troca de idioma
 
 | Camada        | Escolha                                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
-| Framework     | **Angular 21**, standalone-only, signal-first, zoneless                                                |
+| Framework     | **Angular 22**, standalone-only, signal-first, zoneless, `@Service()`                                  |
 | Estilo        | **Tailwind v4** com `@theme` tokens + classes brutalistas em layer                                     |
 | Estado        | **Signals + `rxResource`** (sem NgRx) — [ADR-0002](docs/adr/0002-signals-over-ngrx.md)                 |
-| HTTP          | `provideHttpClient(withFetch)` + 3 interceptors (baseUrl, cache LRU, error)                            |
+| Formulários   | **Signal Forms** (`@angular/forms/signals`, estável no v22) — `form()` + `[formField]`                 |
+| HTTP          | `provideHttpClient()` + 3 interceptors (baseUrl, cache LRU, error); fetch é default no Angular 22      |
 | i18n          | **Transloco** com troca em runtime — [ADR-0006](docs/adr/0006-i18n-transloco.md)                       |
 | Testes        | **Vitest** via builder nativo `@angular/build:unit-test` — [ADR-0007](docs/adr/0007-vitest-builder.md) |
 | Qualidade     | ESLint flat + Prettier+Tailwind + Husky + lint-staged + commitlint                                     |
@@ -19,11 +20,11 @@ para listar, buscar e detalhar Pokémons. Suporta troca de idioma
 
 ## Pré-requisitos
 
-- Node.js ≥ 20.19 (ver `.nvmrc` para a versão exata usada no desenvolvimento)
+- Node.js `^22.22.3 || ^24.15.0 || ^26.0.0` (ver `.nvmrc` para a versão exata usada no desenvolvimento)
 - npm ≥ 10
 
 ```bash
-node --version  # >= v20.11
+node --version  # >= v22
 npm --version   # >= 10
 ```
 
@@ -186,7 +187,7 @@ flowchart TB
 ## Testes
 
 ```bash
-npm test -- --watch=false   # 40 spec files / 177 specs passing
+npm test -- --watch=false   # 45 spec files / 211 specs passing
 npm test -- --coverage      # gera relatório em coverage/
 ```
 

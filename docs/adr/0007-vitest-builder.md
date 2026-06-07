@@ -7,7 +7,7 @@
 ## Contexto
 
 O plano proíbe Karma/Jasmine. As opções viáveis em 2026 são Vitest
-ou Jest (com Testing Library opcional). Angular 21 trouxe um
+ou Jest (com Testing Library opcional). O Angular trouxe um
 **builder nativo** `@angular/build:unit-test` que orquestra Vitest
 via `angular.json`, dispensando wrappers de terceiros.
 
@@ -52,13 +52,10 @@ adicionar dependência.
 
 ### Negativas / Trade-offs
 
-- **`@defer` blocks ainda têm fricção** sob Vitest: `TestBed
-.createComponent` falha com "unresolved metadata" mesmo com
-  `compileComponents()` e `DeferBlockBehavior.Manual`. Cinco specs
-  do `PokemonDetailPage` estão `it.skip` — documentado em
-  PENDENCIAS. Mitigação: collaborators (mapper, repo, 4 dumb
-  components) têm specs próprias; smart é validado por typecheck +
-  build + run manual.
+- **`@defer` blocks** foram mitigados extraindo o conteúdo do bloco
+  para um componente wrapper dedicado (`PokemonEvolutionSection`),
+  eliminando o `it.skip` que existia antes. Todos os specs do
+  `PokemonDetailPage` passam — ver `docs/PENDENCIAS.md`.
 - `prefers-color-scheme`, `matchMedia` e `Intl` precisam de stubs
   em jsdom para alguns specs (Theme/Language services). Padrão
   resolvido com helpers nos próprios specs.
