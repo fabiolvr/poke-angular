@@ -1,5 +1,5 @@
 import { HttpClient, type HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { catchError, finalize, map, of, shareReplay, type Observable } from 'rxjs';
 
 /**
@@ -30,7 +30,7 @@ interface MyMemoryResponse {
 const ENDPOINT = 'https://api.mymemory.translated.net/get';
 const RATE_LIMIT_COOLDOWN_MS = 60 * 60 * 1_000;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class TranslationService {
   private readonly http = inject(HttpClient);
 

@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import {
   DEFAULT_LANG,
@@ -20,7 +20,7 @@ const STORAGE_KEY = 'poke-angular:lang';
  *   2. navigator.language matched against SUPPORTED_LANGS
  *   3. DEFAULT_LANG
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class LanguageService {
   private readonly transloco = inject(TranslocoService);
   private readonly document = inject(DOCUMENT);

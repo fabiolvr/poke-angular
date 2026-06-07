@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { Translation, TranslocoLoader } from '@jsverse/transloco';
 
 /**
@@ -16,7 +16,7 @@ import type { Translation, TranslocoLoader } from '@jsverse/transloco';
  * local SPA assets), so the i18n requests reach the static file server
  * instead of being prefixed with the PokéAPI base.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class TranslocoHttpLoader implements TranslocoLoader {
   private readonly http = inject(HttpClient);
   private readonly basePath = new URL(inject(DOCUMENT).baseURI).pathname;

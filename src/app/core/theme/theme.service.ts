@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -16,7 +16,7 @@ const STORAGE_KEY = 'poke-angular:theme';
  *    tokens.css picks up `prefers-color-scheme`.
  * 3. Light default from @theme (first paint, before this service runs).
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
 

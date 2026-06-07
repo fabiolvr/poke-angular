@@ -1,5 +1,5 @@
 import { type HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
 /**
  * In-memory LRU store for cached HTTP GET responses.
@@ -13,7 +13,7 @@ import { Injectable } from '@angular/core';
  * the resource payloads are large, invalidation across schema updates is
  * fragile, and the in-memory store is enough for SPA-lifetime browsing.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class HttpCacheStore {
   private readonly cache = new Map<string, HttpResponse<unknown>>();
   private readonly maxSize = 200;

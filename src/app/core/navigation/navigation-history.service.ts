@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -13,7 +13,7 @@ import { filter } from 'rxjs';
  * upfront avoids relying on `document.referrer` (cross-origin) or
  * `history.length` (unreliable across SPA bootstraps).
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class NavigationHistoryService {
   private readonly router = inject(Router);
 

@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { forkJoin, map, of, switchMap, type Observable } from 'rxjs';
 import type { Pokemon, PokemonPage } from '@core/domain';
 import type { PokemonDto, PokemonListResponseDto } from './pokeapi.dto';
@@ -24,7 +24,7 @@ import type { PokemonRepository } from './pokemon.repository';
  * `getDetails` is a single GET — same endpoint the list fan-out hits,
  * so a card click on a pokémon you just scrolled past is a cache hit.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PokemonHttpRepository implements PokemonRepository {
   private readonly http = inject(HttpClient);
 

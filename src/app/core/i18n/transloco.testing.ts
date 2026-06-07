@@ -1,4 +1,4 @@
-import { Injectable, makeEnvironmentProviders, type EnvironmentProviders } from '@angular/core';
+import { makeEnvironmentProviders, Service, type EnvironmentProviders } from '@angular/core';
 import { provideTransloco, type Translation, type TranslocoLoader } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { of, type Observable } from 'rxjs';
@@ -18,7 +18,7 @@ const TRANSLATIONS: Record<string, Translation> = {
   en,
 };
 
-@Injectable({ providedIn: 'root' })
+@Service()
 class InMemoryTranslocoLoader implements TranslocoLoader {
   getTranslation(lang: string): Observable<Translation> {
     return of(TRANSLATIONS[lang] ?? {});

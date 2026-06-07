@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { extractIdFromUrl } from '@core/pokeapi';
 import { map, type Observable } from 'rxjs';
 import type { PokemonIndexResponseDto } from './pokemon-index-list.dto';
@@ -8,7 +8,7 @@ import type { PokemonRef } from './pokemon-ref';
 
 const INDEX_LIMIT = 20000;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PokemonIndexHttpRepository implements PokemonIndexRepository {
   private readonly http = inject(HttpClient);
 

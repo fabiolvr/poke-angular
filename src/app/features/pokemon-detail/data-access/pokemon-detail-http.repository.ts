@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { map, switchMap, type Observable } from 'rxjs';
 import type { EvolutionChain, PokemonDetail } from '@core/domain';
 import type { EvolutionChainDto, PokemonDetailDto, PokemonSpeciesDto } from './pokeapi-detail.dto';
@@ -17,7 +17,7 @@ import type { PokemonDetailRepository } from './pokemon-detail.repository';
  * `getEvolutionChain` is a single GET issued by the @defer'd evolution
  * component when scrolled into view.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PokemonDetailHttpRepository implements PokemonDetailRepository {
   private readonly http = inject(HttpClient);
 
