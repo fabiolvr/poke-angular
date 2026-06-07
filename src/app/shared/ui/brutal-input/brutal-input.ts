@@ -5,8 +5,8 @@ import {
   computed,
   input,
   model,
-  signal,
 } from '@angular/core';
+import type { FormValueControl, ValidationError } from '@angular/forms/signals';
 import { cn } from '@core/utils';
 
 export type BrutalInputType = 'text' | 'search' | 'email' | 'password' | 'number' | 'tel' | 'url';
@@ -40,16 +40,16 @@ let nextId = 0;
         [placeholder]="placeholder()"
         [disabled]="disabled()"
         [required]="required()"
-        [attr.aria-invalid]="errorMessage() ? 'true' : null"
+        [attr.aria-invalid]="showError() ? 'true' : null"
         [attr.aria-describedby]="describedBy()"
         [autocomplete]="autocomplete()"
         [class]="inputClasses()"
         (input)="onInput($event)"
         (blur)="touched.set(true)"
       />
-      @if (errorMessage() && touched()) {
+      @if (showError()) {
         <span [id]="errorId" class="text-accent text-sm font-bold" aria-live="polite">
-          {{ errorMessage() }}
+          {{ displayError() }}
         </span>
       } @else if (hint()) {
         <span [id]="hintId" class="text-ink-soft text-sm">{{ hint() }}</span>
@@ -57,7 +57,7 @@ let nextId = 0;
     </label>
   `,
 })
-export class BrutalInput {
+export class BrutalInput implements FormValueControl<string> {
   protected readonly inputId = `brutal-input-${++nextId}`;
   protected readonly errorId = `${this.inputId}-error`;
   protected readonly hintId = `${this.inputId}-hint`;
@@ -67,18 +67,49 @@ export class BrutalInput {
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
+  /**
+   * Manual error message for standalone use (without Signal Forms).
+   * When a Signal Forms field is bound via `[formField]`, errors come
+   * through the `errors` input instead; `errorMessage` is the fallback
+   * for usage outside a form context.
+   */
   readonly errorMessage = input<string>('');
+  /** Populated by `FormField` when bound via `[formField]`. */
+  readonly errors = input<readonly ValidationError.WithOptionalField[]>([]);
   readonly type = input<BrutalInputType>('text');
   readonly size = input<BrutalInputSize>('md');
   readonly disabled = input(false, { transform: booleanAttribute });
+  /**
+   * Cosmetic only: shows the required asterisk and sets the HTML
+   * `required` attribute. The Signal Forms schema is the authoritative
+   * source for validation; this input is independent of it.
+   */
   readonly required = input(false, { transform: booleanAttribute });
   readonly autocomplete = input<string>('off');
   readonly extraClass = input<string>('');
 
-  protected readonly touched = signal(false);
+  /**
+   * Exposed as a `model` so `FormField` can read the touched state
+   * (propagated back from the host's blur event). In standalone use,
+   * behaves like a plain writable signal.
+   */
+  readonly touched = model(false);
+
+  /**
+   * Resolves the error message to display:
+   *   1. First error with a `.message` from Signal Forms (`errors` input).
+   *   2. Manual `errorMessage` input (standalone / non-form usage).
+   *   3. `null` → no error.
+   */
+  protected readonly displayError = computed(
+    () => (this.errors().find((e) => e.message)?.message ?? this.errorMessage()) || null,
+  );
+  protected readonly hasError = computed(() => this.displayError() !== null);
+  /** Error is only shown after the field has been touched (blur). */
+  protected readonly showError = computed(() => this.hasError() && this.touched());
 
   protected readonly describedBy = computed(() => {
-    if (this.errorMessage() && this.touched()) return this.errorId;
+    if (this.showError()) return this.errorId;
     if (this.hint()) return this.hintId;
     return null;
   });
@@ -90,7 +121,7 @@ export class BrutalInput {
       'transition-shadow duration-100',
       'focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-[var(--shadow-brutal-sm)]',
       SIZE_CLASSES[this.size()],
-      this.errorMessage() && this.touched() && 'border-accent',
+      this.showError() && 'border-accent',
       this.extraClass(),
     ),
   );
