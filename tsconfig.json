@@ -16,15 +16,13 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "preserve",
-    "baseUrl": "./",
     "paths": {
-      "@core/*": ["src/app/core/*"],
-      "@shared/*": ["src/app/shared/*"],
-      "@features/*": ["src/app/features/*"],
-      "@layout/*": ["src/app/layout/*"]
+      "@core/*": ["./src/app/core/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@features/*": ["./src/app/features/*"],
+      "@layout/*": ["./src/app/layout/*"]
     }
   },
   "angularCompilerOptions": {

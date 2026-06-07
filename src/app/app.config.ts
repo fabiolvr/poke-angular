@@ -1,11 +1,10 @@
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { IMAGE_LOADER, type ImageLoaderConfig } from '@angular/common';
 import {
   type ApplicationConfig,
   inject,
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
-  provideZonelessChangeDetection,
 } from '@angular/core';
 import {
   provideRouter,
@@ -21,10 +20,6 @@ import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Explicitly declare zoneless change detection. Angular 21 defaults to
-    // it (there's no zone.js), but declaring it documents the choice and
-    // guards against a future default change.
-    provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       routes,
@@ -33,7 +28,6 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
     ),
     provideHttpClient(
-      withFetch(),
       // Order matters. baseUrl rewrites first so the cache key is stable;
       // cache short-circuits when possible; error normalises everything that
       // makes it back from the network into an AppError.
