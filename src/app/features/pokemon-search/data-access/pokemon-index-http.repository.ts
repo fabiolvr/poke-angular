@@ -1,17 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { extractIdFromUrl } from '@core/pokeapi';
 import { map, type Observable } from 'rxjs';
 import type { PokemonIndexResponseDto } from './pokemon-index-list.dto';
 import type { PokemonIndexRepository } from './pokemon-index.repository';
 import type { PokemonRef } from './pokemon-ref';
 
 const INDEX_LIMIT = 20000;
-const ID_PATTERN = /\/(\d+)\/?$/;
-
-const extractId = (url: string): number => {
-  const match = ID_PATTERN.exec(url);
-  return match?.[1] ? Number(match[1]) : Number.NaN;
-};
 
 @Injectable({ providedIn: 'root' })
 export class PokemonIndexHttpRepository implements PokemonIndexRepository {
@@ -28,7 +23,7 @@ export class PokemonIndexHttpRepository implements PokemonIndexRepository {
       .pipe(
         map((response) =>
           response.results
-            .map((entry) => ({ id: extractId(entry.url), name: entry.name }))
+            .map((entry) => ({ id: extractIdFromUrl(entry.url), name: entry.name }))
             .filter((ref) => Number.isFinite(ref.id)),
         ),
       );

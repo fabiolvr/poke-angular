@@ -24,3 +24,10 @@ export interface PokemonStat {
   readonly base: number;
   readonly effort: number;
 }
+
+/**
+ * The in-game cap for a single base stat before EVs/IVs. PokéAPI ships
+ * `base_stat` values in [0, MAX_BASE_STAT]; views render bar widths as a
+ * percentage of this cap.
+ */
+export const MAX_BASE_STAT = 255;

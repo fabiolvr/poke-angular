@@ -11,6 +11,7 @@
   },
   "language": {
     "label": "Idioma",
+    "select": "Selecionar idioma",
     "pt-BR": "Português",
     "en": "Inglês"
   },
@@ -38,10 +39,8 @@
   "list": {
     "title": "Pokédex",
     "empty": "Nenhum Pokémon para mostrar.",
-    "count": "{count, plural, one {1 Pokémon} other {# Pokémons}}",
     "prev": "Anterior",
     "next": "Próxima",
-    "pageOf": "Página {{ page }} de {{ total }}",
     "firstPage": "Primeira página",
     "lastPage": "Última página",
     "goToPage": "Ir para a página {{ page }}",
@@ -78,6 +77,8 @@
     "evolutionChain": "Linha evolutiva",
     "evolutionChainEmpty": "Este Pokémon não evolui.",
     "flavorText": "Descrição",
+    "mythical": "Mítico",
+    "legendary": "Lendário",
     "stat": {
       "hp": "HP",
       "attack": "Ataque",

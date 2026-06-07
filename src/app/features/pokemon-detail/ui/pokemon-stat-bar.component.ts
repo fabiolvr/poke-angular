@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import type { PokemonStatName } from '@core/domain';
+import { MAX_BASE_STAT, type PokemonStatName } from '@core/domain';
 import { TranslocoPipe } from '@jsverse/transloco';
+
+/** Percentage buckets that colour the bar like an in-game health bar. */
+const LOW_STAT_PCT = 30;
+const MID_STAT_PCT = 60;
 
 /**
  * Single horizontal stat bar. PokéAPI ships `base_stat` values in [0, 255]
@@ -28,7 +32,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
         class="brutal-surface relative h-6 overflow-hidden p-0"
         role="meter"
         aria-valuemin="0"
-        aria-valuemax="255"
+        [attr.aria-valuemax]="maxBaseStat"
         [attr.aria-valuenow]="value()"
         [attr.aria-label]="'detail.stat.' + stat() | transloco"
       >
@@ -47,7 +51,9 @@ export class PokemonStatBar {
   readonly stat = input.required<PokemonStatName>();
   readonly value = input.required<number>();
 
-  protected readonly percent = computed(() => Math.min(100, (this.value() / 255) * 100));
+  protected readonly maxBaseStat = MAX_BASE_STAT;
+
+  protected readonly percent = computed(() => Math.min(100, (this.value() / MAX_BASE_STAT) * 100));
 
   /**
    * Colour the bar by health-bar buckets: red for low stats, yellow for
@@ -55,8 +61,8 @@ export class PokemonStatBar {
    */
   protected readonly color = computed(() => {
     const pct = this.percent();
-    if (pct < 30) return 'var(--color-accent)';
-    if (pct < 60) return 'var(--color-warning)';
+    if (pct < LOW_STAT_PCT) return 'var(--color-accent)';
+    if (pct < MID_STAT_PCT) return 'var(--color-warning)';
     return 'var(--color-success)';
   });
 }

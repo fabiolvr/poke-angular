@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { POKEMON_STAT_NAMES } from '@core/domain';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalCard, BrutalSkeleton } from '@shared/ui';
 
@@ -41,5 +42,5 @@ import { BrutalCard, BrutalSkeleton } from '@shared/ui';
   `,
 })
 export class PokemonDetailSkeleton {
-  protected readonly statRows = [0, 1, 2, 3, 4, 5];
+  protected readonly statRows = Array.from({ length: POKEMON_STAT_NAMES.length }, (_, i) => i);
 }

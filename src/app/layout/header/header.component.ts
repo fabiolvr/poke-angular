@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -35,7 +36,14 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LanguageSwitcher, RouterLink, RouterLinkActive, ThemeToggle, TranslocoPipe],
+  imports: [
+    LanguageSwitcher,
+    NgOptimizedImage,
+    RouterLink,
+    RouterLinkActive,
+    ThemeToggle,
+    TranslocoPipe,
+  ],
   template: `
     <header class="brutal-stripes border-ink border-b-[var(--border-brutal-width)]">
       <div
@@ -45,7 +53,14 @@ const LIST_LINK_MATCH_OPTIONS: IsActiveMatchOptions = {
           routerLink="/"
           class="font-display text-ink col-start-1 row-start-1 inline-flex items-center gap-2 text-xl font-bold tracking-tight no-underline sm:text-2xl"
         >
-          <img src="poke_ball_icon.svg" alt="" width="32" height="32" class="size-7 sm:size-8" />
+          <img
+            ngSrc="poke_ball_icon.svg"
+            alt=""
+            width="32"
+            height="32"
+            priority
+            class="size-7 sm:size-8"
+          />
           {{ 'app.title' | transloco }}
         </a>
 

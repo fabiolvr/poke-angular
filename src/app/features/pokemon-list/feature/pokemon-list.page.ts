@@ -137,9 +137,6 @@ export default class PokemonListPage {
   protected readonly total = computed(() => this.resource.value()?.total ?? 0);
   protected readonly totalPagesCount = computed(() => totalPages(this.total()));
 
-  protected readonly hasNext = computed(() => this.resource.value()?.hasNext ?? false);
-  protected readonly hasPrev = computed(() => this.currentPage() > 1);
-
   protected readonly errorKey = computed(() => {
     const err = appErrorOf(this.resource.error());
     return err ? appErrorTranslationKey(err) : null;
@@ -156,8 +153,6 @@ export default class PokemonListPage {
   protected readonly liveAnnouncement = signal('');
 
   protected readonly resultsRegion = viewChild<ElementRef<HTMLElement>>('resultsRegion');
-
-  protected readonly pageSize = POKEMON_LIST_PAGE_SIZE;
 
   private hasNavigated = false;
 

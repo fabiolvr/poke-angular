@@ -3,14 +3,15 @@ import { describe, expect, it } from 'vitest';
 import { BrutalSkeleton } from './brutal-skeleton';
 
 describe('BrutalSkeleton', () => {
-  it('renders an accessible loading indicator', () => {
+  it('renders a decorative loading placeholder with no label by default', () => {
     const fixture = TestBed.createComponent(BrutalSkeleton);
     fixture.componentRef.setInput('width', '120px');
     fixture.detectChanges();
     const el = (fixture.nativeElement as HTMLElement).querySelector('span') as HTMLElement;
     expect(el.getAttribute('role')).toBe('status');
     expect(el.getAttribute('aria-busy')).toBe('true');
-    expect(el.getAttribute('aria-label')).toBe('Carregando');
+    // No hardcoded label: the surrounding role="status" region announces loading.
+    expect(el.getAttribute('aria-label')).toBeNull();
     expect(el.style.width).toBe('120px');
     expect(el.className).toContain('brutal-pulse');
   });

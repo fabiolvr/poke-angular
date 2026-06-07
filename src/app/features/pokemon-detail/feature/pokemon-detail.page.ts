@@ -8,14 +8,16 @@ import {
   type ElementRef,
   inject,
   input,
+  type Signal,
   signal,
   viewChild,
+  type WritableSignal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
-import { LanguageService, TranslationService } from '@core/i18n';
-import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
+import { LanguageService, pickLocalized, TranslationService } from '@core/i18n';
+import { FALLBACK_SPRITE, formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
 import { NavigationHistoryService } from '@core/navigation';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { BrutalBadge, BrutalButton, BrutalCard, BrutalSkeleton } from '@shared/ui';
@@ -23,13 +25,6 @@ import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
 import { PokemonDetailSkeleton } from '../ui/pokemon-detail.skeleton';
 import { PokemonEvolutionSection } from '../ui/pokemon-evolution-section.component';
 import { PokemonStatsPanel } from '../ui/pokemon-stats-panel.component';
-
-const FALLBACK_SPRITE = 'img/missing-sprite.svg';
-
-const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
-  'pt-BR': ['pt-br', 'pt-BR', 'pt', 'en'],
-  en: ['en'],
-};
 
 /**
  * Smart page at `/pokemon/:name`.
@@ -80,7 +75,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
           </app-brutal-card>
         }
         @default {
-          @if (detail(); as d) {
+          @if (detail(); as pokemon) {
             <article class="flex flex-col gap-6">
               <app-brutal-card padding="lg" extraClass="grid gap-6 md:grid-cols-[260px_1fr]">
                 <div class="flex flex-col items-center gap-3">
@@ -92,7 +87,7 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                     priority
                     class="size-60"
                   />
-                  @if (d.sprites.shiny) {
+                  @if (pokemon.sprites.shiny) {
                     <app-brutal-button variant="secondary" size="sm" (pressed)="toggleShiny()">
                       {{ shiny() ? t('detail.normalToggle') : t('detail.shinyToggle') }}
                     </app-brutal-button>
@@ -104,9 +99,11 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                     <app-brutal-badge variant="primary">
                       <span class="font-mono">{{ dexNumber() }}</span>
                     </app-brutal-badge>
-                    @if (d.species.isLegendary || d.species.isMythical) {
+                    @if (pokemon.species.isLegendary || pokemon.species.isMythical) {
                       <app-brutal-badge variant="accent" size="sm">
-                        {{ d.species.isMythical ? 'mythical' : 'legendary' }}
+                        {{
+                          pokemon.species.isMythical ? t('detail.mythical') : t('detail.legendary')
+                        }}
                       </app-brutal-badge>
                     }
                   </div>
@@ -122,13 +119,13 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                       class="block"
                       shape="text"
                       width="14ch"
-                      ariaLabel="Carregando"
+                      [ariaLabel]="t('common.loading')"
                     />
                   } @else if (displayedGenus()) {
                     <p class="text-ink-soft">{{ displayedGenus() }}</p>
                   }
                   <div class="flex flex-wrap gap-2" [attr.aria-label]="t('detail.types')">
-                    @for (type of d.types; track type) {
+                    @for (type of pokemon.types; track type) {
                       <app-brutal-badge variant="pokemon-type" [pokemonType]="type">
                         {{ type }}
                       </app-brutal-badge>
@@ -149,12 +146,12 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                       {{ t('detail.abilities') }}
                     </h2>
                     <ul class="flex flex-wrap gap-2 pt-1">
-                      @for (ability of d.abilities; track ability.name) {
+                      @for (ability of pokemon.abilities; track ability.name) {
                         <li>
                           <app-brutal-badge size="sm" variant="neutral">
                             <span class="capitalize">{{ ability.name }}</span>
                             @if (ability.isHidden) {
-                              <span class="text-text-mutedd ms-1">
+                              <span class="text-ink-soft ms-1">
                                 {{ t('detail.hiddenAbility') }}
                               </span>
                             }
@@ -173,8 +170,12 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
                   </h2>
                   @if (flavorTranslating()) {
                     <div class="mt-1 flex flex-col gap-2" aria-live="polite">
-                      <app-brutal-skeleton shape="text" width="100%" ariaLabel="Carregando" />
-                      <app-brutal-skeleton shape="text" width="78%" ariaLabel="" />
+                      <app-brutal-skeleton
+                        shape="text"
+                        width="100%"
+                        [ariaLabel]="t('common.loading')"
+                      />
+                      <app-brutal-skeleton shape="text" width="78%" />
                     </div>
                   } @else {
                     <p class="mt-1">{{ displayedFlavorText() }}</p>
@@ -183,11 +184,11 @@ const LANG_LOOKUP_FALLBACKS: Record<string, readonly string[]> = {
               }
 
               <app-brutal-card padding="md">
-                <app-pokemon-stats-panel [stats]="d.stats" />
+                <app-pokemon-stats-panel [stats]="pokemon.stats" />
               </app-brutal-card>
 
-              @if (d.species.evolutionChainUrl) {
-                <app-pokemon-evolution-section [chainUrl]="d.species.evolutionChainUrl" />
+              @if (pokemon.species.evolutionChainUrl) {
+                <app-pokemon-evolution-section [chainUrl]="pokemon.species.evolutionChainUrl" />
               }
             </article>
           }
@@ -227,41 +228,28 @@ export default class PokemonDetailPage {
   protected readonly shiny = signal(false);
 
   protected readonly dexNumber = computed(() => {
-    const d = this.detail();
-    return d ? formatPokedexNumber(d.id) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatPokedexNumber(pokemon.id) : '';
   });
 
   protected readonly localizedName = computed(() => {
-    const d = this.detail();
-    if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedNames.get(code);
-      if (candidate) return candidate;
-    }
-    return d.species.defaultName || d.name;
+    const pokemon = this.detail();
+    if (!pokemon) return '';
+    return pickLocalized(
+      pokemon.species.localizedNames,
+      this.lang.current(),
+      pokemon.species.defaultName || pokemon.name,
+    );
   });
 
   protected readonly localizedGenus = computed(() => {
-    const d = this.detail();
-    if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedGenera.get(code);
-      if (candidate) return candidate;
-    }
-    return '';
+    const pokemon = this.detail();
+    return pokemon ? pickLocalized(pokemon.species.localizedGenera, this.lang.current()) : '';
   });
 
   protected readonly localizedFlavorText = computed(() => {
-    const d = this.detail();
-    if (!d) return '';
-    const langCodes = LANG_LOOKUP_FALLBACKS[this.lang.current()] ?? ['en'];
-    for (const code of langCodes) {
-      const candidate = d.species.localizedFlavorTexts.get(code);
-      if (candidate) return candidate;
-    }
-    return '';
+    const pokemon = this.detail();
+    return pokemon ? pickLocalized(pokemon.species.localizedFlavorTexts, this.lang.current()) : '';
   });
 
   /**
@@ -290,41 +278,51 @@ export default class PokemonDetailPage {
     return !map.has('pt-br') && !map.has('pt');
   }
 
-  protected readonly displayedFlavorText = computed(() => {
-    const d = this.detail();
-    const native = this.localizedFlavorText();
-    if (!d || !native) return native;
-    if (this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
-      return this.machineTranslatedFlavor() || native;
-    }
-    return native;
-  });
+  /**
+   * Shows the machine-translated text when the user is in pt-BR and the
+   * payload only has English, otherwise the native localized value.
+   * Falls back to native if the machine translation isn't ready yet.
+   */
+  private displayWithMachineFallback(
+    native: string,
+    source: ReadonlyMap<string, string> | undefined,
+    machineTranslation: Signal<string>,
+  ): string {
+    if (!native || !source || !this.needsMachineTranslation(source)) return native;
+    return machineTranslation() || native;
+  }
 
-  protected readonly displayedGenus = computed(() => {
-    const d = this.detail();
-    const native = this.localizedGenus();
-    if (!d || !native) return native;
-    if (this.needsMachineTranslation(d.species.localizedGenera)) {
-      return this.machineTranslatedGenus() || native;
-    }
-    return native;
-  });
+  protected readonly displayedFlavorText = computed(() =>
+    this.displayWithMachineFallback(
+      this.localizedFlavorText(),
+      this.detail()?.species.localizedFlavorTexts,
+      this.machineTranslatedFlavor,
+    ),
+  );
+
+  protected readonly displayedGenus = computed(() =>
+    this.displayWithMachineFallback(
+      this.localizedGenus(),
+      this.detail()?.species.localizedGenera,
+      this.machineTranslatedGenus,
+    ),
+  );
 
   protected readonly spriteSrc = computed(() => {
-    const d = this.detail();
-    if (!d) return FALLBACK_SPRITE;
-    const url = this.shiny() ? d.sprites.shiny : d.sprites.artwork;
-    return url ?? d.sprites.thumbnail ?? FALLBACK_SPRITE;
+    const pokemon = this.detail();
+    if (!pokemon) return FALLBACK_SPRITE;
+    const url = this.shiny() ? pokemon.sprites.shiny : pokemon.sprites.artwork;
+    return url ?? pokemon.sprites.thumbnail ?? FALLBACK_SPRITE;
   });
 
   protected readonly formattedHeight = computed(() => {
-    const d = this.detail();
-    return d ? formatHeight(d.heightDecimetres, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatHeight(pokemon.heightDecimetres, this.lang.current()) : '';
   });
 
   protected readonly formattedWeight = computed(() => {
-    const d = this.detail();
-    return d ? formatWeight(d.weightHectograms, this.lang.current()) : '';
+    const pokemon = this.detail();
+    return pokemon ? formatWeight(pokemon.weightHectograms, this.lang.current()) : '';
   });
 
   private readonly titleEl = viewChild<ElementRef<HTMLElement>>('titleEl');
@@ -339,43 +337,52 @@ export default class PokemonDetailPage {
     // Resets the cached translation when the detail changes (new Pokémon)
     // or when the user flips back to English.
     effect(() => {
-      const d = this.detail();
-      if (!d || this.lang.current() !== 'pt-BR') {
+      const pokemon = this.detail();
+      if (!pokemon || this.lang.current() !== 'pt-BR') {
         this.machineTranslatedFlavor.set('');
         this.machineTranslatedGenus.set('');
         this.flavorTranslating.set(false);
         this.genusTranslating.set(false);
         return;
       }
-      const flavorEn = d.species.localizedFlavorTexts.get('en');
-      if (flavorEn && this.needsMachineTranslation(d.species.localizedFlavorTexts)) {
-        this.flavorTranslating.set(true);
-        this.translator.translate(flavorEn, 'en', 'pt-br').subscribe({
-          next: (t) => {
-            this.machineTranslatedFlavor.set(t);
-            this.flavorTranslating.set(false);
-          },
-          error: () => this.flavorTranslating.set(false),
-        });
-      } else {
-        this.machineTranslatedFlavor.set('');
-        this.flavorTranslating.set(false);
-      }
-      const genusEn = d.species.localizedGenera.get('en');
-      if (genusEn && this.needsMachineTranslation(d.species.localizedGenera)) {
-        this.genusTranslating.set(true);
-        this.translator.translate(genusEn, 'en', 'pt-br').subscribe({
-          next: (t) => {
-            this.machineTranslatedGenus.set(t);
-            this.genusTranslating.set(false);
-          },
-          error: () => this.genusTranslating.set(false),
-        });
-      } else {
-        this.machineTranslatedGenus.set('');
-        this.genusTranslating.set(false);
-      }
+      this.translateField(
+        pokemon.species.localizedFlavorTexts,
+        this.machineTranslatedFlavor,
+        this.flavorTranslating,
+      );
+      this.translateField(
+        pokemon.species.localizedGenera,
+        this.machineTranslatedGenus,
+        this.genusTranslating,
+      );
     });
+  }
+
+  /**
+   * Machine-translates the English entry of `source` into pt-BR and writes
+   * it to `target`, toggling `loading` around the request. Clears both when
+   * no machine translation is needed. The observable emits synchronously on
+   * a cache hit, so the set(true)/set(false) pair batches inside the effect.
+   */
+  private translateField(
+    source: ReadonlyMap<string, string>,
+    target: WritableSignal<string>,
+    loading: WritableSignal<boolean>,
+  ): void {
+    const english = source.get('en');
+    if (english && this.needsMachineTranslation(source)) {
+      loading.set(true);
+      this.translator.translate(english, 'en', 'pt-br').subscribe({
+        next: (translated) => {
+          target.set(translated);
+          loading.set(false);
+        },
+        error: () => loading.set(false),
+      });
+    } else {
+      target.set('');
+      loading.set(false);
+    }
   }
 
   protected toggleShiny(): void {

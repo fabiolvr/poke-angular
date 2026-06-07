@@ -18,6 +18,7 @@ export default defineConfig({
         'src/app/core/domain/**/*.ts',
         'src/app/core/http/**/*.ts',
         'src/app/core/format/**/*.ts',
+        'src/app/core/pokeapi/**/*.ts',
         'src/app/features/**/data-access/**/*.ts',
       ],
       exclude: ['**/*.spec.ts', '**/index.ts', '**/*.dto.ts'],

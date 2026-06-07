@@ -2,11 +2,9 @@ import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { PokemonSummary } from '@core/domain';
-import { formatPokedexNumber } from '@core/format';
+import { FALLBACK_SPRITE, formatPokedexNumber } from '@core/format';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalBadge, BrutalCard } from '@shared/ui';
-
-const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 /**
  * Card-sized presentation of a Pokémon. Stateless — receives a

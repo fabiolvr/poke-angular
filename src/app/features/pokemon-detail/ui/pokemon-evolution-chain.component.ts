@@ -3,12 +3,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { flattenEvolutionChain, type EvolutionNode } from '@core/domain';
+import { formatPokedexNumber, pokemonArtworkUrl } from '@core/format';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BrutalCard, BrutalSkeleton } from '@shared/ui';
 import { POKEMON_DETAIL_REPOSITORY } from '../data-access';
-
-const FALLBACK_SPRITE = 'img/missing-sprite.svg';
 
 /**
  * Self-contained evolution chain. Owns its own rxResource so the parent
@@ -41,7 +40,12 @@ const FALLBACK_SPRITE = 'img/missing-sprite.svg';
       </h2>
 
       @if (resource.isLoading()) {
-        <div class="flex flex-wrap items-center gap-3" aria-busy="true">
+        <div
+          class="flex flex-wrap items-center gap-3"
+          role="status"
+          aria-busy="true"
+          [attr.aria-label]="'common.loading' | transloco"
+        >
           <app-brutal-skeleton shape="block" width="140px" height="160px" />
           <app-brutal-skeleton shape="block" width="140px" height="160px" />
           <app-brutal-skeleton shape="block" width="140px" height="160px" />
@@ -62,7 +66,7 @@ const FALLBACK_SPRITE = 'img/missing-sprite.svg';
                 [routerLink]="['/pokemon', node.speciesName]"
                 class="brutal-surface brutal-interactive brutal-focusable inline-flex flex-col items-center gap-1 px-3 py-2 no-underline"
               >
-                <span class="font-mono text-xs">#{{ padded(node.speciesId) }}</span>
+                <span class="font-mono text-xs">{{ formatDex(node.speciesId) }}</span>
                 <img
                   [ngSrc]="spriteUrl(node.speciesId)"
                   [alt]="node.speciesName"
@@ -104,12 +108,6 @@ export class PokemonEvolutionChain {
     return err ? appErrorTranslationKey(err) : null;
   });
 
-  protected padded(id: number): string {
-    return id.toString().padStart(4, '0');
-  }
-
-  protected spriteUrl(id: number): string {
-    if (!Number.isFinite(id) || id <= 0) return FALLBACK_SPRITE;
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  }
+  protected readonly formatDex = formatPokedexNumber;
+  protected readonly spriteUrl = pokemonArtworkUrl;
 }

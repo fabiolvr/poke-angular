@@ -86,7 +86,7 @@ export class BrutalInput {
   protected readonly inputClasses = computed(() =>
     cn(
       'brutal-surface brutal-focusable w-full font-sans',
-      'bg-surface text-ink placeholder:text-text-mutedd',
+      'bg-surface text-ink placeholder:text-ink-soft',
       'transition-shadow duration-100',
       'focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-[var(--shadow-brutal-sm)]',
       SIZE_CLASSES[this.size()],
