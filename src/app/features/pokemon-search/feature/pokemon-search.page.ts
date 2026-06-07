@@ -14,6 +14,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FALLBACK_SPRITE, formatPokedexNumber, pokemonArtworkUrl } from '@core/format';
 import { appErrorOf, appErrorTranslationKey } from '@core/http';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { form, FormField } from '@angular/forms/signals';
 import { debounceTime } from 'rxjs';
 import { BrutalButton, BrutalCard, BrutalInput } from '@shared/ui';
 import { POKEMON_INDEX_REPOSITORY, type PokemonRef } from '../data-access';
@@ -44,7 +45,15 @@ const DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-pokemon-search-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BrutalButton, BrutalCard, BrutalInput, HighlightedText, RouterLink, TranslocoDirective],
+  imports: [
+    BrutalButton,
+    BrutalCard,
+    BrutalInput,
+    FormField,
+    HighlightedText,
+    RouterLink,
+    TranslocoDirective,
+  ],
   host: {
     '(keydown)': 'onKey($event)',
   },
@@ -58,7 +67,7 @@ const DEBOUNCE_MS = 300;
       <div class="flex items-end gap-3">
         <div class="flex-1">
           <app-brutal-input
-            [(value)]="query"
+            [formField]="searchForm"
             [label]="t('search.title')"
             [placeholder]="t('search.placeholder')"
             type="search"
@@ -160,6 +169,15 @@ export default class PokemonSearchPage {
    * while URL changes (deep link, browser back) reseed the input.
    */
   protected readonly query = linkedSignal<string>(() => this.q() ?? '');
+
+  /**
+   * Signal Forms form bound to the scalar `query` signal. No validators
+   * — the search is a live filter, not a validated field. Using `form()`
+   * here adopts the stable Signal Forms API; the backing signal is still
+   * `query`, so debounce / `?q=` / keyboard navigation are unchanged.
+   */
+  protected readonly searchForm = form(this.query);
+
   protected readonly focusedIndex = signal(-1);
 
   protected readonly indexResource = rxResource<readonly PokemonRef[], void>({
