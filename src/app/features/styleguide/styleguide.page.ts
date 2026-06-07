@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { form, FormField, minLength } from '@angular/forms/signals';
 import { POKEMON_TYPES } from '@core/domain';
 import { LanguageService } from '@core/i18n';
 import { formatHeight, formatPokedexNumber, formatWeight } from '@core/format';
@@ -21,6 +22,7 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
     BrutalCard,
     BrutalInput,
     BrutalSkeleton,
+    FormField,
     LanguageSwitcher,
     TranslocoDirective,
   ],
@@ -135,11 +137,9 @@ import { BrutalBadge, BrutalButton, BrutalCard, BrutalInput, BrutalSkeleton } fr
             hint="Case-insensitive partial match."
           />
           <app-brutal-input
-            [(value)]="errorVal"
+            [formField]="errorForm"
             label="With error"
             placeholder="Type and blur"
-            errorMessage="At least 2 characters required."
-            required
           />
         </div>
         @if (search()) {
@@ -193,6 +193,15 @@ export default class StyleguidePage {
   protected readonly pokemonTypes = POKEMON_TYPES;
   protected readonly search = signal('');
   protected readonly errorVal = signal('');
+
+  /**
+   * Signal Forms form for the "With error" demo input.
+   * minLength(2) validates that at least 2 characters are entered;
+   * the error message is shown after the field is touched (blur).
+   */
+  protected readonly errorForm = form(this.errorVal, (path) => {
+    minLength(path, 2, { message: 'At least 2 characters required.' });
+  });
   protected readonly themeOptions: { value: ThemePreference }[] = [
     { value: 'system' },
     { value: 'light' },
